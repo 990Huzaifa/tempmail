@@ -40,6 +40,7 @@ return [
                 'cluster' => env('PUSHER_APP_CLUSTER'),
                 'useTLS' => true,
                 'encrypted' => true,
+                'authEndpoint' => 'https://tempmail.techvince.com/api/broadcasting/auth',
             ],
         ],
 
