@@ -47,7 +47,7 @@ class AuthController extends Controller
 
 
             $token = rand(1000, 9999);
-            $data = User::create([
+            $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
@@ -63,11 +63,11 @@ class AuthController extends Controller
             //     'is_url' => false
             // ]));
 
-            $brevo = new BrevoService();
-            $htmlContent = "<html><body><p>Hi " . $data->name . ",</p><p>This is your account verification code: <strong>" . $token . "</strong></p></body></html>";
-            $res = $brevo->sendMail('Account Verification Code', $data->email, $data->name, $htmlContent);
+            // $brevo = new BrevoService();
+            // $htmlContent = "<html><body><p>Hi " . $data->name . ",</p><p>This is your account verification code: <strong>" . $token . "</strong></p></body></html>";
+            // $res = $brevo->sendMail('Account Verification Code', $data->email, $data->name, $htmlContent);
 
-            Log::info('Brevo sendMail response: ' . print_r($res, true));
+             myMailSend($request->email, $user->first_name . $user->last_name ,'Email Verification', $token);
             DB::commit();
             return response()->json(['message' => 'Your account has been created successfully'], 200);
         } catch (QueryException $e) {
