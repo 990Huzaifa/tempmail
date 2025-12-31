@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Validator;
+use Log;
 
 
 class ProfileController extends Controller
@@ -80,6 +81,7 @@ class ProfileController extends Controller
         
             return response()->json($responseData);
         }catch(Exception $e){
+            Log::error('Broadcast Auth Error: '.$e->getMessage());
             return response()->json($e->getMessage(), 400);
         }
     }
