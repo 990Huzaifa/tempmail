@@ -70,6 +70,7 @@ class ProfileController extends Controller
         try{
             $user = Auth::user();
             $response = Broadcast::auth($request);
+            Log::info('Broadcast Auth User: '.json_encode($request));
             Log::info('Broadcast Auth Response: '.json_encode($response));
             // Ensure response is always an array
             $responseData = is_array($response) ? $response : json_decode($response->getContent(), true);
