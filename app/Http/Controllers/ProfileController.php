@@ -80,7 +80,7 @@ class ProfileController extends Controller
         
             return response()->json($responseData);
         }catch(Exception $e){
-            return response()->json(['error' => 'Unable to broadcast'], 400);
+            return response()->json($e->getMessage(), 400);
         }
     }
 }
