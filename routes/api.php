@@ -36,7 +36,7 @@ Route::post('resend-code', [AuthController::class, 'resendCode']);
 Route::post('/webhook/apple', [WebhookController::class, 'handleApple']);
 Route::post('/webhook/google', [WebhookController::class, 'handleGoogle']);
 
-Broadcast::routes(['middleware' => ['auth']]);
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
