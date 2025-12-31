@@ -70,7 +70,7 @@ class ProfileController extends Controller
         try{
             $user = Auth::user();
             $response = Broadcast::auth($request);
-    
+            Log::info('Broadcast Auth Response: '.json_encode($response));
             // Ensure response is always an array
             $responseData = is_array($response) ? $response : json_decode($response->getContent(), true);
         
@@ -81,7 +81,6 @@ class ProfileController extends Controller
         
             return response()->json($responseData);
         }catch(Exception $e){
-            Log::error('Broadcast Auth Error: '.$e->getMessage());
             return response()->json($e->getMessage(), 400);
         }
     }
