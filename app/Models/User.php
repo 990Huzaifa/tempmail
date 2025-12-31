@@ -20,7 +20,16 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
+        'otp',
+        'fcm_token',
+        'device_id',
+        'app_version',
+        'google_id',
+        'facebook_id',
+        'apple_id',
+        'ip',
     ];
 
     /**
@@ -41,4 +50,18 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function subscription()
+    {
+        return $this->hasOne(Subscription::class, 'user_id', 'id');
+    }
+
+    public function isPremium()
+    {
+        $subscription = $this->subscription;
+        if ($subscription && $subscription->status === 'active') {
+            return true;
+        }
+        return false;
+    }
 }

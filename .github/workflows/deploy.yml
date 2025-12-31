@@ -28,7 +28,6 @@ jobs:
             **/node_modules/**
             **/.env
             vendor/*
-            storage/*
             resources/views/*
             bootstrap/cache/*
             public/*
