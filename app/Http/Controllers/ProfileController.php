@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -60,6 +61,26 @@ class ProfileController extends Controller
             return response()->json(['plan' => $plan], 200);
         }catch(Exception $e){
             return response()->json(['error', $e->getMessage()], $e->getCode() ?: 500);
+        }
+    }
+
+    public function broadcast(Request $request): JsonResponse
+    {
+        try{
+            $user = Auth::user();
+            $response = Broadcast::auth($request);
+    
+            // Ensure response is always an array
+            $responseData = is_array($response) ? $response : json_decode($response->getContent(), true);
+        
+            if (isset($responseData['channel_data']) && is_string($responseData['channel_data'])) {
+                // Decode channel_data only if it is a string
+                $responseData['channel_data'] = json_decode($responseData['channel_data'], true);
+            }
+        
+            return response()->json($responseData);
+        }catch(Exception $e){
+            return response()->json(['error' => 'Unable to broadcast'], 400);
         }
     }
 }
