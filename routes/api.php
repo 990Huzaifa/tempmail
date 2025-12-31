@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
+
 Route::get('/optimize-clear', function () {
     Artisan::call('optimize:clear');
     return 'Optimization cache cleared!';
@@ -37,10 +39,9 @@ Route::post('/webhook/apple', [WebhookController::class, 'handleApple']);
 Route::post('/webhook/google', [WebhookController::class, 'handleGoogle']);
 
 
-
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    Route::post('/broadcasting/auth', [ProfileController::class, 'broadcast']);
+    
     Route::controller(ProfileController::class)->group(function () {
         Route::get('/profile', 'profile');
         Route::post('/profile', 'updateProfile');
