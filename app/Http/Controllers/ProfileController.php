@@ -69,6 +69,7 @@ class ProfileController extends Controller
     {
         try{
             $user = Auth::user();
+            return response()->json($user, 200);
             $response = Broadcast::auth($request);
             Log::info('Broadcast Auth User: '.json_encode($request));
             Log::info('Broadcast Auth Response: '.json_encode($response));
