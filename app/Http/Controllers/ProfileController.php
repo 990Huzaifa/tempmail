@@ -64,27 +64,5 @@ class ProfileController extends Controller
             return response()->json(['error', $e->getMessage()], $e->getCode() ?: 500);
         }
     }
-
-    public function broadcast(Request $request): JsonResponse
-    {
-        try{
-            $user = Auth::user();
-            return response()->json($user, 200);
-            $response = Broadcast::auth($request);
-            Log::info('Broadcast Auth User: '.json_encode($request));
-            Log::info('Broadcast Auth Response: '.json_encode($response));
-            // Ensure response is always an array
-            $responseData = is_array($response) ? $response : json_decode($response->getContent(), true);
-        
-            if (isset($responseData['channel_data']) && is_string($responseData['channel_data'])) {
-                // Decode channel_data only if it is a string
-                $responseData['channel_data'] = json_decode($responseData['channel_data'], true);
-            }
-        
-            return response()->json($responseData);
-        }catch(Exception $e){
-            return response()->json($e->getMessage(), 400);
-        }
-    }
 }
     

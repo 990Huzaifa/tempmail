@@ -28,17 +28,15 @@ class AuthController extends Controller
             DB::beginTransaction();
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
-                'email' => 'required|email|unique:users,email',
-                'password' => 'required',
+                'email' => 'nullable|email|unique:users,email',
+                'password' => 'nullable',
                 'device_id' => 'required',
                 'fcm_token' => 'required',
                 'app_version' => 'required|string',
             ], [
                 'name.required' => 'Name is required',
-                'email.required' => 'Email is required',
                 'email.email' => 'Invalid email format',
                 'email.unique' => 'Email already exists',
-                'password.required' => 'Password is required',
                 'device_id.required' => 'Device ID is required',
                 'fcm_token.required' => 'FCM Token is required',
             ]);
@@ -269,6 +267,11 @@ class AuthController extends Controller
 
             if ($validator->fails())
                 throw new Exception($validator->errors()->first(), 400);
+            $user = User::where('email', $request->email)->first();
+
+            if($user->password == null){
+                throw new Exception('You have signed up using social login. Please use social login to access your account.', 400);
+            }
 
             $tokenExist = PasswordResetToken::where('email', $request->email)->exists();
             if ($tokenExist)
@@ -282,7 +285,7 @@ class AuthController extends Controller
                 'created_at' => now()
             ]);
 
-            $user = User::where('email', $request->email)->first();
+            
 
             // Mail::to($request->email)->send(new OTPMail([
             //     'message' => 'Hi ' . $user->first_name . $user->last_name . 'This is your one time password',

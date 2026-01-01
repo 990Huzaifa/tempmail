@@ -41,7 +41,7 @@ return [
                 'debug' => true,
                 'useTLS' => true,
                 'port' => env('PUSHER_PORT', 443),
-        'scheme' => env('PUSHER_SCHEME', 'https'),
+                'scheme' => env('PUSHER_SCHEME', 'https'),
                 'authEndpoint' => 'https://tempmail.techvince.com/api/broadcasting/auth',
             ],
         ],
