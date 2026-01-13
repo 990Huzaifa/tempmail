@@ -22,8 +22,8 @@ class AddDomainToModoboaJob implements ShouldQueue
     protected $price;
     public function __construct($domain, $price)
     {
-        $this->domain;
-        $this->price;
+        $this->domain = $domain;
+        $this->price = $price;
     }
 
     /**
