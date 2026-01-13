@@ -13,19 +13,19 @@ class NamecheapService
     public function __construct()
     {
         $this->config = [
-            // 'ApiUser' => 'suri024',
-            // 'ApiKey' => '1f504a8e05f34b0cb1932146da724d3d',
-            // 'UserName' => 'suri024',
-            // 'ClientIp' => '165.227.207.155',
+            'ApiUser' => 'suri024',
+            'ApiKey' => '1f504a8e05f34b0cb1932146da724d3d',
+            'UserName' => 'suri024',
+            'ClientIp' => '165.227.207.155',
 
-            'ApiUser' => config('services.namecheap.user'),
-            'ApiKey' => config('services.namecheap.key'),
-            'UserName' => config('services.namecheap.user'),
-            'ClientIp' => config('services.namecheap.ip'),
+            // 'ApiUser' => config('services.namecheap.user'),
+            // 'ApiKey' => config('services.namecheap.key'),
+            // 'UserName' => config('services.namecheap.user'),
+            // 'ClientIp' => config('services.namecheap.ip'),
         ];
 
         // $this->baseUrl = "https://api.namecheap.com/xml.response";
-        $this->baseUrl = "https://api.sandbox.namecheap.com/xml.response";
+        $this->baseUrl = "https://api.namecheap.com/xml.response";
     }
 
     // 1. Keyword Auto-Generate (Laravel Helper Use Karein)
