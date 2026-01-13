@@ -32,7 +32,7 @@ class NamecheapService
     public function generateKeywords()
     {
         // Aap yahan random strings ya kisi wordlist ka use kar sakte hain
-        return Str::random(8) . 'mail';
+        return Str::random(4) . 'mail';
     }
 
     // 2. Domain Search (Cheap TLDs: .xyz, .site, .online, .top)

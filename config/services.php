@@ -37,4 +37,8 @@ return [
         'ip' => env('NAMECHEAP_CLIENT_IP'),
     ],
 
+    'modoboa' => [
+        'token' => env('MODOBOA_TOKEN')
+    ]
+
 ];
