@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ModoboaService;
 use App\Services\NamecheapService;
 use Exception;
 use Illuminate\Http\Request;
@@ -73,5 +74,14 @@ class TestController extends Controller
         }catch(Exception $e){
             return response()->json(['DB error' => $e->getMessage()], 500);
         }
+    }
+
+
+    public function getDomainInfo($id){
+        $modoboa = new ModoboaService();
+
+        $res = $modoboa->getDomainDetails($id);
+
+        return $res['dkim_public_key'];
     }
 }
