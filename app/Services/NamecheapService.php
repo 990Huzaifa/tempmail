@@ -69,11 +69,16 @@ class NamecheapService
 
         if (empty($availableDomains)) return "no domain found";
 
+        $extensions = collect($availableDomains)->map(function($domain) {
+            return pathinfo($domain, PATHINFO_EXTENSION);
+        })->unique()->implode(',');
+
         // Step 2: Get Pricing for Available TLDs
         $pricingResponse = Http::get($this->baseUrl, array_merge($this->config, [
             'Command' => 'namecheap.users.getPricing',
             'ProductType' => 'DOMAIN',
             'ProductName' => 'REGISTER', 
+            'ProductList' => $extensions,
         ]));
 
         $pricingXml = simplexml_load_string($pricingResponse->body());
