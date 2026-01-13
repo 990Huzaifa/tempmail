@@ -16,8 +16,9 @@ class ModoboaService {
 
     // 1. Modoboa mein Naya Domain Add Karein
     public function createDomain($domainName) {
-        $response = Http::withToken($this->apiToken)
-            ->post($this->baseUrl . 'domains/', [
+        $response = Http::withHeaders([
+            'Authorization' => 'Token ' . $this->apiToken,
+        ])->post($this->baseUrl . 'domains/', [
                 'name' => $domainName,
                 'type' => 'domain', // Default domain type
                 'enabled' => true,
@@ -30,8 +31,9 @@ class ModoboaService {
     // 2. Domain ki DNS details (DKIM/SPF) fetch karein
     public function getDomainDetails($id) {
         // Modoboa API se DNS info nikalne ka endpoint
-        $response = Http::withToken($this->apiToken)
-            ->get($this->baseUrl . "domains/{$id}");
+        $response = Http::withHeaders([
+            'Authorization' => 'Token ' . $this->apiToken,
+        ])->get($this->baseUrl . "domains/{$id}/");
 
         return $response->json();
     }
