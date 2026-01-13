@@ -15,10 +15,10 @@ class NamecheapService
             'ApiUser' => 'suri024', //config('services.namecheap.user'),
             'ApiKey' => '1f504a8e05f34b0cb1932146da724d3d', //config('services.namecheap.key'),
             'UserName' => 'suri024', //config('services.namecheap.user'),
-            'ClientIp' => config('services.namecheap.ip'),
+            'ClientIp' => '165.227.207.155',//config('services.namecheap.ip'),
         ];
 
-        $this->baseUrl = "https://api.sandbox.namecheap.com/xml.response";
+        $this->baseUrl = "https://api.namecheap.com/xml.response";
             // ? 'https://api.sandbox.namecheap.com/xml.response'
             // : 'https://api.namecheap.com/xml.response';
     }
