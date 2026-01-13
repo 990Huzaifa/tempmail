@@ -12,9 +12,9 @@ class NamecheapService
     public function __construct()
     {
         $this->config = [
-            'ApiUser' => config('services.namecheap.user'),
-            'ApiKey' => config('services.namecheap.key'),
-            'UserName' => config('services.namecheap.user'),
+            'ApiUser' => 'suri024', //config('services.namecheap.user'),
+            'ApiKey' => '1f504a8e05f34b0cb1932146da724d3d', //config('services.namecheap.key'),
+            'UserName' => 'suri024', //config('services.namecheap.user'),
             'ClientIp' => config('services.namecheap.ip'),
         ];
 
