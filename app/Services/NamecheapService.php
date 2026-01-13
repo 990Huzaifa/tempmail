@@ -31,10 +31,20 @@ class NamecheapService
     }
 
     // 2. Domain Search (Cheap TLDs: .xyz, .site, .online, .top)
-    public function searchCheapDomain($customKeyword = null, $customTlds = null)
+    public function searchCheapDomain($customKeyword = null, $customTld = null)
     {
         $keyword = $customKeyword ?? $this->generateKeywords();
-        $tlds = $customTlds ?? ['.store', '.site', '.space', '.xyz'];
+        $defaultTlds = ['.store', '.site', '.space', '.xyz'];
+        
+        if ($customTld) {
+            // Ensure karein ke TLD dot (.) se start ho raha ho
+            $customTld = str_starts_with($customTld, '.') ? $customTld : '.' . $customTld;
+            
+            // Custom TLD ko start mein add karein aur duplicates remove karein
+            $tlds = array_unique(array_merge([$customTld], $defaultTlds));
+        } else {
+            $tlds = $defaultTlds;
+        }
 
         $domainList = '';
         foreach ($tlds as $tld) {
