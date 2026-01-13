@@ -28,7 +28,7 @@ class TestController extends Controller
 
             $res = $namecheap->purchaseDomain($domain,$userData);
             if($res->Status != "OK"){
-                throw new Exception($res, 500);
+                return $res;
                 
             }
             return response()->json($res, 200);
