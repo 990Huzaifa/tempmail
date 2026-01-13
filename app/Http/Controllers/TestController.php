@@ -27,7 +27,7 @@ class TestController extends Controller
             $namecheap = new NamecheapService();
 
             $res = $namecheap->purchaseDomain($domain,$userData);
-            if ($res !== true) {
+            if ($res->status != "OK") {
                 // Debugging ke liye full error check karein
                 $error = isset($res->Errors->Error) ? (string)$res->Errors->Error : 'Unknown Error';
                 return response()->json([
