@@ -60,7 +60,7 @@ class NamecheapService
 
         $xml = simplexml_load_string($response->body());
         $availableDomains = [];
-        return $xml;
+        // return $xml;
         foreach ($xml->CommandResponse->DomainCheckResult as $result) {
             if ((string) $result['Available'] === 'true') {
                 $availableDomains[] = (string) $result['Domain'];
