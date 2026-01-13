@@ -71,32 +71,32 @@ class NamecheapService
         // XML Namespace hata dein taake parsing asan ho
         $pricingXml->registerXPathNamespace('ns', 'http://api.namecheap.com/xml.response');
 
-        $resultsWithPrice = [];
+        // $resultsWithPrice = [];
 
-        foreach ($availableDomains as $domain) {
-            $ext = pathinfo($domain, PATHINFO_EXTENSION); // xyz, site, etc.
+        // foreach ($availableDomains as $domain) {
+        //     $ext = pathinfo($domain, PATHINFO_EXTENSION); // xyz, site, etc.
 
-            // XPATH use karke direct us TLD ka Product node dhoondna
-            // Namecheap XML mein TLD Name aksar lowercase hota hai
-            $productNode = $pricingXml->xpath("//Product[@Name='{$ext}']");
+        //     // XPATH use karke direct us TLD ka Product node dhoondna
+        //     // Namecheap XML mein TLD Name aksar lowercase hota hai
+        //     $productNode = $pricingXml->xpath("//Product[@Name='{$ext}']");
 
-            if (!empty($productNode)) {
-                // Price hamesha pehle PriceDuration node mein hoti hai (1 Year)
-                $priceData = $productNode[0]->Price->PriceDuration[0];
+        //     if (!empty($productNode)) {
+        //         // Price hamesha pehle PriceDuration node mein hoti hai (1 Year)
+        //         $priceData = $productNode[0]->Price->PriceDuration[0];
                 
-                $price = (float) $priceData['Price'];
-                $additionalFee = (float) $priceData['AdditionalCost']; // ICANN fee
-                $currency = (string) $priceData['Currency'] ?: 'USD';
+        //         $price = (float) $priceData['Price'];
+        //         $additionalFee = (float) $priceData['AdditionalCost']; // ICANN fee
+        //         $currency = (string) $priceData['Currency'] ?: 'USD';
 
-                $resultsWithPrice[] = [
-                    'domain' => $domain,
-                    'price'  => $price + $additionalFee,
-                    'currency' => $currency
-                ];
-            }
-        }
+        //         $resultsWithPrice[] = [
+        //             'domain' => $domain,
+        //             'price'  => $price + $additionalFee,
+        //             'currency' => $currency
+        //         ];
+        //     }
+        // }
 
-return !empty($resultsWithPrice) ? $resultsWithPrice : "Pricing data could not be parsed";
+        return $pricingXml;
     }
 
     // 3. Buy Domain & Disable Auto-Renew
