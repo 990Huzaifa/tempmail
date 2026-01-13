@@ -215,23 +215,23 @@ class NamecheapService
         // lekin ye command safety ke liye hai.
     }
 
-    public function syncDomainWithModoboa($domain, $modoboaApiResponse) 
-    {
-        // Modoboa API se records extract karna (Example keys)
-        $rawDkim = $modoboaApiResponse['dkim_record']; // "v=DKIM1; k=rsa; p=MIIB..."
-        $rawSpf  = $modoboaApiResponse['spf_record'];  // "v=spf1 mx ~all"
+    // public function syncDomainWithModoboa($domain, $modoboaApiResponse) 
+    // {
+    //     // Modoboa API se records extract karna (Example keys)
+    //     $rawDkim = $modoboaApiResponse['dkim_record']; // "v=DKIM1; k=rsa; p=MIIB..."
+    //     $rawSpf  = $modoboaApiResponse['spf_record'];  // "v=spf1 mx ~all"
         
-        $data = [
-            'dkim' => formatModoboaRecord($rawDkim, 'DKIM'),
-            'spf'  => formatModoboaRecord($rawSpf, 'SPF'),
-        ];
+    //     $data = [
+    //         'dkim' => formatModoboaRecord($rawDkim, 'DKIM'),
+    //         'spf'  => formatModoboaRecord($rawSpf, 'SPF'),
+    //     ];
 
-        // Ab wahi purana setup function call karein
-        return $this->setupModoboaDNS($domain, $data, 'YOUR_SERVER_IP');
-    }
+    //     // Ab wahi purana setup function call karein
+    //     return $this->setupModoboaDNS($domain);
+    // }
 
     // 5. Setup Modoboa DNS Records (MX, SPF, DKIM, DMARC)
-    public function setupModoboaDNS($domain, $modoboaData, $serverIp)
+    public function setupModoboaDNS($domain, $dkimKey)
     {
         // Domain ko SLD aur TLD mein split karein (e.g., techvince aur com)
         $parts = explode('.', $domain);
@@ -244,9 +244,9 @@ class NamecheapService
             'TLD' => $tld,
             
             // 1. A Record for Mail Server (mail.domain.com)
-            'HostName1' => 'mail',
-            'RecordType1' => 'A',
-            'Address1' => $serverIp,
+            // 'HostName1' => 'mail',
+            // 'RecordType1' => 'A',
+            // 'Address1' => $serverIp,
 
             // 2. MX Record (@ -> mail.domain.com)
             'HostName2' => '@',
@@ -263,7 +263,7 @@ class NamecheapService
             // Modoboa ki lambi key ko Namecheap handle kar leta hai agar quotes sahi hon
             'HostName4' => 'modoboa._domainkey',
             'RecordType4' => 'TXT',
-            'Address4' => $modoboaData['dkim'], 
+            'Address4' => 'v=DKIM1; k=rsa; p=' .$dkimKey, 
 
             // 5. DMARC Record
             'HostName5' => '_dmarc',

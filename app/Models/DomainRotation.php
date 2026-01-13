@@ -13,6 +13,7 @@ class DomainRotation extends Model
         'user_id',
         'email',
         'domain_name',
+        'domain_id',
         'purchase_price',
         'expires_at',
         'type',
