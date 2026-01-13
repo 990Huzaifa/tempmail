@@ -61,11 +61,12 @@ class TestController extends Controller
                 $selectedDomain = $list[$randomIndex];
 
                 $pricingarray = $namecheap->getTldPrice($selectedDomain);
-
+                $buyable = false;
+                if($pricingarray['currency'] == 'USD' && $pricingarray['price'] <= 3) $buyable = true;
                 return response()->json([
                     'status' => 'success', 
                     'result' => $selectedDomain,
-                    'pricing' => $pricingarray
+                    'buyable' => $buyable
                 ], 200);
             }
             return response()->json(['status' => 'error', 'message' => 'No domains found'], 404);

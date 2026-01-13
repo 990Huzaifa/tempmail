@@ -90,7 +90,7 @@ class NamecheapService
         $response = Http::get($this->baseUrl, array_merge($this->config, [
             'Command'     => 'namecheap.users.getPricing',
             'ProductType' => 'DOMAIN',
-            'ProductName' => 'STORE',
+            'ProductName' => $tld,
         ]));
 
         $xml = simplexml_load_string($response->body());
@@ -98,45 +98,57 @@ class NamecheapService
         // Error Handling
         if (isset($xml->Errors->Error)) {
             return [
-                'success' => false, 
-                'message' => (string)$xml->Errors->Error
+                'success' => false,
+                'message' => (string) $xml->Errors->Error
             ];
         }
 
         $pricingData = null;
-        
-        // Namecheap XML structure ke mutabiq nested loops
-        if (isset($xml->CommandResponse->UserGetPricingResult->ProductType->ProductCategory->Product)) {
-            foreach ($xml->CommandResponse->UserGetPricingResult->ProductType->ProductCategory->Product->Price as $price) {
-                
-                // Hum sirf 1 Year Registration price dekh rahe hain
-                if ((string)$price['Duration'] === '1' && (string)$price['DurationUnit'] === 'YEAR') {
-                    
-                    $yourPrice = (float)$price['YourPrice'];
-                    $additionalCost = (float)$price['AdditionalCost']; // ICANN Fee
+
+        // Loop through ProductCategory (register, renew, etc)
+        foreach ($xml->CommandResponse->UserGetPricingResult->ProductType->ProductCategory as $category) {
+
+            // We only want registration price
+            if ((string) $category['Name'] !== 'register') {
+                continue;
+            }
+
+            foreach ($category->Product->Price as $price) {
+
+                // Only 1 year price
+                if (
+                    (string) $price['Duration'] === '1' &&
+                    (string) $price['DurationType'] === 'YEAR'
+                ) {
+                    $yourPrice     = (float) $price['YourPrice'];
+                    $additionalFee = (float) $price['AdditionalCost'];
 
                     $pricingData = [
-                        'domain' => $domain,
-                        'tld' => $tld,
-                        'base_price' => $yourPrice,
-                        'icann_fee' => $additionalCost,
-                        'total_price' => number_format($yourPrice + $additionalCost, 2),
-                        'currency' => (string)$price['Currency']
+                        'domain'       => $domain,
+                        'tld'          => $tld,
+                        'base_price'   => $yourPrice,
+                        'icann_fee'    => $additionalFee,
+                        'total_price'  => number_format($yourPrice + $additionalFee, 2),
+                        'currency'     => (string) $price['Currency']
                     ];
-                    break;
+
+                    break 2; // Exit both loops
                 }
             }
         }
 
         if ($pricingData) {
             return [
-                'success' => true,
-                'price' => $pricingData['total_price'],
+                'success'  => true,
+                'price'    => $pricingData['total_price'],
                 'currency' => $pricingData['currency']
             ];
         }
 
-        return ['success' => false, 'message' => 'Pricing not found for this domain extension'];
+        return [
+            'success' => false,
+            'message' => 'Pricing not found for this domain extension'
+        ];
     }
 
     // 3. Buy Domain & Disable Auto-Renew
