@@ -117,10 +117,15 @@ class NamecheapService
         $response = Http::get($this->baseUrl, $params);
         $result = simplexml_load_string($response->body());
 
-        if ($result->Status == 'OK') {
+        if ((string)$result['Status'] === 'OK') {
             // Purchase successful, ab Auto-Renew OFF karein
             $this->disableAutoRenew($domain);
-            return true;
+            return [
+                'success' => true,
+                'domain' => (string)$result->CommandResponse->DomainCreateResult['Domain'],
+                'charged' => (string)$result->CommandResponse->DomainCreateResult['ChargedAmount'],
+                'order_id' => (string)$result->CommandResponse->DomainCreateResult['OrderID']
+            ];
         }
         return $result;
     }
