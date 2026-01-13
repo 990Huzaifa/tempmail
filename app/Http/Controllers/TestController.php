@@ -20,7 +20,7 @@ class TestController extends Controller
                 "state" => "sindh",
                 "zip" => "75500",
                 "country" => "PK",
-                "phone" => "+923133054378",
+                "phone" => "+92.3133054378",
                 "email" => "surajkumar00244vk@gmail.com",
             ];
 
