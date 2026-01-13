@@ -52,8 +52,20 @@ class TestController extends Controller
             $namecheap = new NamecheapService();
 
             $res = $namecheap->searchCheapDomain($keyword,$customTld);
+            if (isset($res['success']) && $res['success'] && !empty($res['list'])) {
 
-            return response()->json(['status' => 'success', 'result' => $res], 200);
+                $list = $res['list'];
+
+                $maxIndex = min(count($list) - 1, 3);
+                $randomIndex = rand(0, $maxIndex);
+                $selectedDomain = $list[$randomIndex];
+                
+                return response()->json([
+                    'status' => 'success', 
+                    'result' => $selectedDomain
+                ], 200);
+            }
+            return response()->json(['status' => 'error', 'message' => 'No domains found'], 404);
         }catch(Exception $e){
             return response()->json(['DB error' => $e->getMessage()], 500);
         }
