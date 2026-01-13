@@ -94,7 +94,7 @@ class NamecheapService
             $this->disableAutoRenew($domain);
             return true;
         }
-        return false;
+        return $result;
     }
 
     // 4. Disable Auto-Renewal
