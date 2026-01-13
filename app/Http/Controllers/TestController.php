@@ -59,10 +59,13 @@ class TestController extends Controller
                 $maxIndex = min(count($list) - 1, 3);
                 $randomIndex = rand(0, $maxIndex);
                 $selectedDomain = $list[$randomIndex];
-                
+
+                $pricingarray = $namecheap->getTldPrice($selectedDomain);
+
                 return response()->json([
                     'status' => 'success', 
-                    'result' => $selectedDomain
+                    'result' => $selectedDomain,
+                    'pricing' => $pricingarray
                 ], 200);
             }
             return response()->json(['status' => 'error', 'message' => 'No domains found'], 404);
