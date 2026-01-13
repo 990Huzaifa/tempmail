@@ -96,7 +96,7 @@ class NamecheapService
         }
 
         // Agar koi bhi $3 se kam wala nahi mila to list return kar den
-        return !empty($resultsWithPrice) ? $resultsWithPrice[0] : null;
+        return $resultsWithPrice;
     }
 
     // 3. Buy Domain & Disable Auto-Renew
