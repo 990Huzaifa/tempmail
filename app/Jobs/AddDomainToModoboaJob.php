@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class AddDomainToModoboaJob implements ShouldQueue
 {
@@ -35,7 +36,7 @@ class AddDomainToModoboaJob implements ShouldQueue
         if ($response) {
             // first insert into DB
 
-            DomainRotation::create([
+            $data = DomainRotation::create([
                 'domain_name' => $this->domain,
                 'domain_id' => $response->pk,
                 'purchase_price' => $this->price,
@@ -43,7 +44,8 @@ class AddDomainToModoboaJob implements ShouldQueue
                 'expires_at' => now()->addYear(),
                 'is_active' => false
             ]);
-
+            
+            Log::info($data);
 
             // Modoboa ko thoda waqt chahiye hota hai DKIM generate karne mein
             // Isliye hum next job ko 10-20 seconds ke delay se bhejenge
