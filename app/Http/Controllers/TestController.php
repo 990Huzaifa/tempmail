@@ -53,7 +53,7 @@ class TestController extends Controller
 
             $res = $namecheap->searchCheapDomain($keyword,$customTld);
 
-             return response()->json(['status' => 'success', 'result' => $res], 200);
+            return response()->json(['status' => 'success', 'result' => $res], 200);
         }catch(Exception $e){
             return response()->json(['DB error' => $e->getMessage()], 500);
         }

@@ -12,18 +12,18 @@ class NamecheapService
     public function __construct()
     {
         $this->config = [
-            // 'ApiUser' => 'suri024',
-            // 'ApiKey' => '1f504a8e05f34b0cb1932146da724d3d',
-            // 'UserName' => 'suri024',
-            // 'ClientIp' => '165.227.207.155',
+            'ApiUser' => 'suri024',
+            'ApiKey' => '1f504a8e05f34b0cb1932146da724d3d',
+            'UserName' => 'suri024',
+            'ClientIp' => '165.227.207.155',
 
-            'ApiUser' => config('services.namecheap.user'),
-            'ApiKey' => config('services.namecheap.key'),
-            'UserName' => config('services.namecheap.user'),
-            'ClientIp' => config('services.namecheap.ip'),
+            // 'ApiUser' => config('services.namecheap.user'),
+            // 'ApiKey' => config('services.namecheap.key'),
+            // 'UserName' => config('services.namecheap.user'),
+            // 'ClientIp' => config('services.namecheap.ip'),
         ];
 
-        $this->baseUrl = "https://api.sandbox.namecheap.com/xml.response";
+        $this->baseUrl = "https://api.namecheap.com/xml.response";
             // ? 'https://api.sandbox.namecheap.com/xml.response'
             // : 'https://api.namecheap.com/xml.response';
     }
@@ -74,7 +74,10 @@ class NamecheapService
 
         if (empty($availableDomains)) return "no domain found";
 
-        return $availableDomains;
+        return [
+            "success" => true,
+            "list" => $availableDomains
+        ];
     }
 
     // 3. Buy Domain & Disable Auto-Renew
@@ -184,7 +187,7 @@ class NamecheapService
             // 3. SPF Record (Modoboa provide karta hai)
             'HostName3' => '@',
             'RecordType3' => 'TXT',
-            'Address3' => $modoboaData['spf'], // e.g. "v=spf1 mx ~all"
+            'Address3' => 'v=spf1 mx ~all', // e.g. "v=spf1 mx ~all"
 
             // 4. DKIM Record (Sabse tricky part)
             // Modoboa ki lambi key ko Namecheap handle kar leta hai agar quotes sahi hon
