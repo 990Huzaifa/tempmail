@@ -33,35 +33,70 @@ class NamecheapService
     // 2. Domain Search (Cheap TLDs: .xyz, .site, .online, .top)
     public function searchCheapDomain($customKeyword = null, $customTlds = null)
     {
-        // Agar user ne keyword nahi diya to auto-generate karo
         $keyword = $customKeyword ?? $this->generateKeywords();
-
-        // Agar user ne TLDs nahi diye to default saste wale use karo
         $tlds = $customTlds ?? ['.xyz', '.site', '.online', '.top'];
 
-        // Namecheap API ko ek hi baar mein list bhejna zyada fast hai (comma separated)
         $domainList = '';
         foreach ($tlds as $tld) {
             $domainList .= $keyword . $tld . ',';
         }
         $domainList = rtrim($domainList, ',');
 
+        // Step 1: Check Availability
         $response = Http::get($this->baseUrl, array_merge($this->config, [
             'Command' => 'namecheap.domains.check',
             'DomainList' => $domainList,
         ]));
 
         $xml = simplexml_load_string($response->body());
-        
-        // Namecheap XML mein har domain ke liye alag result bhejta hai
+        $availableDomains = [];
+
         foreach ($xml->CommandResponse->DomainCheckResult as $result) {
             if ((string) $result['Available'] === 'true') {
-                // Hum pehla available domain return kar denge
-                return (string) $result['Domain']; 
+                $availableDomains[] = (string) $result['Domain'];
             }
         }
 
-        return null;
+        if (empty($availableDomains)) return null;
+
+        // Step 2: Get Pricing for Available TLDs
+        // Hum product type 'DOMAIN' ke liye pricing mangwaenge
+        $pricingResponse = Http::get($this->baseUrl, array_merge($this->config, [
+            'Command' => 'namecheap.users.getPricing',
+            'ProductType' => 'DOMAIN',
+            'ProductName' => 'REGISTER', // Sirf registration price chahiye
+        ]));
+
+        $pricingXml = simplexml_load_string($pricingResponse->body());
+        $resultsWithPrice = [];
+
+        foreach ($availableDomains as $domain) {
+            $ext = pathinfo($domain, PATHINFO_EXTENSION); // e.g., 'xyz'
+            
+            // XML mein TLD price dhundna
+            foreach ($pricingXml->CommandResponse->UserGetPricingResult->ProductType->ProductCategory as $category) {
+                foreach ($category->Product as $product) {
+                    if ((string)$product['Name'] === $ext) {
+                        // Namecheap pricing XML mein Price pehle PriceDuration element mein hoti hai
+                        $price = (float) $product->Price->PriceDuration[0]['Price'];
+                        
+                        $resultsWithPrice[] = [
+                            'domain' => $domain,
+                            'price'  => $price,
+                            'currency' => (string) $product->Price->PriceDuration[0]['Currency'] ?? 'USD'
+                        ];
+                        
+                        // Agar humen sirf pehla sasta domain chahiye (under $3)
+                        if ($price <= 3.00) {
+                            return $resultsWithPrice[count($resultsWithPrice) - 1];
+                        }
+                    }
+                }
+            }
+        }
+
+        // Agar koi bhi $3 se kam wala nahi mila to list return kar den
+        return !empty($resultsWithPrice) ? $resultsWithPrice[0] : null;
     }
 
     // 3. Buy Domain & Disable Auto-Renew
