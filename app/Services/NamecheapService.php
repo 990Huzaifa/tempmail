@@ -77,8 +77,8 @@ class NamecheapService
         $pricingResponse = Http::get($this->baseUrl, array_merge($this->config, [
             'Command' => 'namecheap.users.getPricing',
             'ProductType' => 'DOMAIN',
-            'ProductName' => 'REGISTER', 
-            'ProductList' => $extensions,
+            'ActionName' => 'REGISTER', 
+            'ProductName' => $extensions,
         ]));
 
         $pricingXml = simplexml_load_string($pricingResponse->body());
