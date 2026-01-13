@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -38,7 +39,7 @@ Route::post('resend-code', [AuthController::class, 'resendCode']);
 Route::post('/webhook/apple', [WebhookController::class, 'handleApple']);
 Route::post('/webhook/google', [WebhookController::class, 'handleGoogle']);
 
-
+Route::post('buy',[TestController::class,'purchaseDomain']);
 Route::middleware(['auth:sanctum'])->group(function () {
 
     

@@ -31,4 +31,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'namecheap' => [
+        'user' => env('NAMECHEAP_API_USER'),
+        'key' => env('NAMECHEAP_API_KEY'),
+        'ip' => env('NAMECHEAP_CLIENT_IP'),
+    ],
+
 ];
