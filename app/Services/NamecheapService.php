@@ -69,49 +69,7 @@ class NamecheapService
 
         if (empty($availableDomains)) return "no domain found";
 
-        $extensions = collect($availableDomains)->map(function($domain) {
-            return pathinfo($domain, PATHINFO_EXTENSION);
-        })->unique()->implode(',');
-
-        // Step 2: Get Pricing for Available TLDs
-        $pricingResponse = Http::get($this->baseUrl, array_merge($this->config, [
-            'Command' => 'namecheap.users.getPricing',
-            'ProductType' => 'DOMAIN',
-            'ActionName' => 'REGISTER', 
-            'ProductName' => $extensions,
-        ]));
-
-        $pricingXml = simplexml_load_string($pricingResponse->body());
-
-        // XML Namespace hata dein taake parsing asan ho
-        $pricingXml->registerXPathNamespace('ns', 'http://api.namecheap.com/xml.response');
-
-        // $resultsWithPrice = [];
-
-        // foreach ($availableDomains as $domain) {
-        //     $ext = pathinfo($domain, PATHINFO_EXTENSION); // xyz, site, etc.
-
-        //     // XPATH use karke direct us TLD ka Product node dhoondna
-        //     // Namecheap XML mein TLD Name aksar lowercase hota hai
-        //     $productNode = $pricingXml->xpath("//Product[@Name='{$ext}']");
-
-        //     if (!empty($productNode)) {
-        //         // Price hamesha pehle PriceDuration node mein hoti hai (1 Year)
-        //         $priceData = $productNode[0]->Price->PriceDuration[0];
-                
-        //         $price = (float) $priceData['Price'];
-        //         $additionalFee = (float) $priceData['AdditionalCost']; // ICANN fee
-        //         $currency = (string) $priceData['Currency'] ?: 'USD';
-
-        //         $resultsWithPrice[] = [
-        //             'domain' => $domain,
-        //             'price'  => $price + $additionalFee,
-        //             'currency' => $currency
-        //         ];
-        //     }
-        // }
-
-        return $pricingXml;
+        return $availableDomains;
     }
 
     // 3. Buy Domain & Disable Auto-Renew
