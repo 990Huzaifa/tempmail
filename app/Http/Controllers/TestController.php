@@ -19,19 +19,24 @@ class TestController extends Controller
                 "city" => "karachi",
                 "state" => "sindh",
                 "zip" => "75500",
-                "country" => "pakistan",
-                "phone" => "3133054378",
+                "country" => "PK",
+                "phone" => "+923133054378",
                 "email" => "surajkumar00244vk@gmail.com",
             ];
 
             $namecheap = new NamecheapService();
 
             $res = $namecheap->purchaseDomain($domain,$userData);
-            if($res->Status != "OK"){
-                return $res;
-                
+            if ($res !== true) {
+                // Debugging ke liye full error check karein
+                $error = isset($res->Errors->Error) ? (string)$res->Errors->Error : 'Unknown Error';
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $error,
+                    'raw_response' => $res // Is se aapko XML ki detail mil jayegi
+                ], 400);
             }
-            return response()->json($res, 200);
+            return response()->json(['status' => 'success', 'message' => 'Domain bought!'], 200);
         }catch(Exception $e){
             return response()->json(['DB error' => $e->getMessage()], 500);
         }
