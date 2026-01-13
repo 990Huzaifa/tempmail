@@ -82,16 +82,15 @@ class NamecheapService
 
     public function getTldPrice($domain)
     {
-        // Agar user ne "example.store" bheja hai, to hum "store" extract karenge
-        // pathinfo use karke extension nikalenge
+        $domain = ltrim($domain, '.');
         $parts = explode('.', $domain);
-        $tld = end($parts); // Ye last part nikal lega (e.g., store)
+        $tld = end($parts);
 
         // API Call
         $response = Http::get($this->baseUrl, array_merge($this->config, [
             'Command'     => 'namecheap.users.getPricing',
             'ProductType' => 'DOMAIN',
-            'ProductName' => $tld,
+            'ProductName' => 'store',
         ]));
 
         $xml = simplexml_load_string($response->body());
