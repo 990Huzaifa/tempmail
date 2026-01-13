@@ -85,7 +85,7 @@ class NamecheapService
             'StateProvince' => $userData['state'],
             'PostalCode'    => $userData['zip'],
             'Country'       => $userData['country'],
-            'Phone'         => '+92.' . ltrim($userData['phone'], '0'), // Format: +92.313...
+            'Phone'         => $userData['phone'], // Format: +92.313...
             'EmailAddress'  => $userData['email'],
         ];
 
