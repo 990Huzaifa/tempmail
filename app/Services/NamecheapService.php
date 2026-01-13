@@ -27,14 +27,14 @@ class NamecheapService
     public function generateKeywords()
     {
         // Aap yahan random strings ya kisi wordlist ka use kar sakte hain
-        return Str::random(8) . rand(10, 99);
+        return Str::random(8) . 'mail';
     }
 
     // 2. Domain Search (Cheap TLDs: .xyz, .site, .online, .top)
     public function searchCheapDomain($customKeyword = null, $customTlds = null)
     {
         $keyword = $customKeyword ?? $this->generateKeywords();
-        $tlds = $customTlds ?? ['.xyz', '.site', '.online', '.top'];
+        $tlds = $customTlds ?? ['.store', '.site', '.space', '.xyz'];
 
         $domainList = '';
         foreach ($tlds as $tld) {
@@ -67,40 +67,36 @@ class NamecheapService
         ]));
 
         $pricingXml = simplexml_load_string($pricingResponse->body());
+
+        // XML Namespace hata dein taake parsing asan ho
+        $pricingXml->registerXPathNamespace('ns', 'http://api.namecheap.com/xml.response');
+
         $resultsWithPrice = [];
 
-        // Namecheap XML namespaces handle karne ke liye
-        $ns = $pricingXml->getNamespaces(true);
-        $commandResponse = $pricingXml->CommandResponse->UserGetPricingResult;
-
         foreach ($availableDomains as $domain) {
-            $ext = pathinfo($domain, PATHINFO_EXTENSION); // e.g., 'xyz'
-            
-            // ProductCategory loop (Register, Renew, etc.)
-            foreach ($commandResponse->ProductType->ProductCategory as $category) {
-                if ((string)$category['Name'] !== 'register') continue; // Sirf register wali pricing dekhen
+            $ext = pathinfo($domain, PATHINFO_EXTENSION); // xyz, site, etc.
 
-                foreach ($category->Product as $product) {
-                    // Namecheap pricing mein TLD name 'xyz' direct product['Name'] mein hota hai
-                    if ((string)$product['Name'] === $ext) {
-                        
-                        // PriceDuration element tak pohnchna (yahan 1 saal ki price hoti hai)
-                        $priceDuration = $product->Price->PriceDuration;
-                        $price = (float) $priceDuration[0]['Price'];
-                        $currency = (string) $priceDuration[0]['Currency'];
-                        $additionalFee = (float) $priceDuration[0]['AdditionalCost']; // ICANN Fee
+            // XPATH use karke direct us TLD ka Product node dhoondna
+            // Namecheap XML mein TLD Name aksar lowercase hota hai
+            $productNode = $pricingXml->xpath("//Product[@Name='{$ext}']");
 
-                        $resultsWithPrice[] = [
-                            'domain' => $domain,
-                            'price'  => $price + $additionalFee, // Total cost
-                            'currency' => $currency ?: 'USD'
-                        ];
-                    }
-                }
+            if (!empty($productNode)) {
+                // Price hamesha pehle PriceDuration node mein hoti hai (1 Year)
+                $priceData = $productNode[0]->Price->PriceDuration[0];
+                
+                $price = (float) $priceData['Price'];
+                $additionalFee = (float) $priceData['AdditionalCost']; // ICANN fee
+                $currency = (string) $priceData['Currency'] ?: 'USD';
+
+                $resultsWithPrice[] = [
+                    'domain' => $domain,
+                    'price'  => $price + $additionalFee,
+                    'currency' => $currency
+                ];
             }
         }
 
-        return $resultsWithPrice;
+return !empty($resultsWithPrice) ? $resultsWithPrice : "Pricing data could not be parsed";
     }
 
     // 3. Buy Domain & Disable Auto-Renew
