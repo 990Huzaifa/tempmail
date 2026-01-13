@@ -87,9 +87,9 @@ class NamecheapService
                         ];
                         
                         // Agar humen sirf pehla sasta domain chahiye (under $3)
-                        if ($price <= 3.00) {
-                            return $resultsWithPrice[count($resultsWithPrice) - 1];
-                        }
+                        // if ($price <= 3.00) {
+                        //     return $resultsWithPrice[count($resultsWithPrice) - 1];
+                        // }
                     }
                 }
             }
