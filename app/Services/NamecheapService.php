@@ -57,45 +57,49 @@ class NamecheapService
             }
         }
 
-        if (empty($availableDomains)) return null;
+        if (empty($availableDomains)) return "no domain found";
 
         // Step 2: Get Pricing for Available TLDs
-        // Hum product type 'DOMAIN' ke liye pricing mangwaenge
         $pricingResponse = Http::get($this->baseUrl, array_merge($this->config, [
             'Command' => 'namecheap.users.getPricing',
             'ProductType' => 'DOMAIN',
-            'ProductName' => 'REGISTER', // Sirf registration price chahiye
+            'ProductName' => 'REGISTER', 
         ]));
 
         $pricingXml = simplexml_load_string($pricingResponse->body());
         $resultsWithPrice = [];
 
+        // Namecheap XML namespaces handle karne ke liye
+        $ns = $pricingXml->getNamespaces(true);
+        $commandResponse = $pricingXml->CommandResponse->UserGetPricingResult;
+
         foreach ($availableDomains as $domain) {
             $ext = pathinfo($domain, PATHINFO_EXTENSION); // e.g., 'xyz'
             
-            // XML mein TLD price dhundna
-            foreach ($pricingXml->CommandResponse->UserGetPricingResult->ProductType->ProductCategory as $category) {
+            // ProductCategory loop (Register, Renew, etc.)
+            foreach ($commandResponse->ProductType->ProductCategory as $category) {
+                if ((string)$category['Name'] !== 'register') continue; // Sirf register wali pricing dekhen
+
                 foreach ($category->Product as $product) {
+                    // Namecheap pricing mein TLD name 'xyz' direct product['Name'] mein hota hai
                     if ((string)$product['Name'] === $ext) {
-                        // Namecheap pricing XML mein Price pehle PriceDuration element mein hoti hai
-                        $price = (float) $product->Price->PriceDuration[0]['Price'];
                         
+                        // PriceDuration element tak pohnchna (yahan 1 saal ki price hoti hai)
+                        $priceDuration = $product->Price->PriceDuration;
+                        $price = (float) $priceDuration[0]['Price'];
+                        $currency = (string) $priceDuration[0]['Currency'];
+                        $additionalFee = (float) $priceDuration[0]['AdditionalCost']; // ICANN Fee
+
                         $resultsWithPrice[] = [
                             'domain' => $domain,
-                            'price'  => $price,
-                            'currency' => (string) $product->Price->PriceDuration[0]['Currency'] ?? 'USD'
+                            'price'  => $price + $additionalFee, // Total cost
+                            'currency' => $currency ?: 'USD'
                         ];
-                        
-                        // Agar humen sirf pehla sasta domain chahiye (under $3)
-                        // if ($price <= 3.00) {
-                        //     return $resultsWithPrice[count($resultsWithPrice) - 1];
-                        // }
                     }
                 }
             }
         }
 
-        // Agar koi bhi $3 se kam wala nahi mila to list return kar den
         return $resultsWithPrice;
     }
 
