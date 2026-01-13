@@ -36,7 +36,7 @@ class TestController extends Controller
                     'raw_response' => $res // Is se aapko XML ki detail mil jayegi
                 ], 400);
             }
-            return response()->json(['status' => 'success', 'message' => 'Domain bought!'], 200);
+            return response()->json(['status' => 'success', 'message' => 'Domain bought!','raw_response' => $res], 200);
         }catch(Exception $e){
             return response()->json(['DB error' => $e->getMessage()], 500);
         }
