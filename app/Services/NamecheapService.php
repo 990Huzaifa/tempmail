@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class NamecheapService
@@ -189,6 +190,7 @@ class NamecheapService
 
         $response = Http::get($this->baseUrl, $params);
         $result = simplexml_load_string($response->body());
+        Log::info($result);
         // return $result;
         if ((string)$result['Status'] === 'OK') {
             // Purchase successful, ab Auto-Renew OFF karein
