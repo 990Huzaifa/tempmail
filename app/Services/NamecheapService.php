@@ -67,24 +67,39 @@ class NamecheapService
     // 3. Buy Domain & Disable Auto-Renew
     public function purchaseDomain($domain, $userData)
     {
-        $params = array_merge($this->config, [
+        // Basic Params
+        $baseParams = [
             'Command' => 'namecheap.domains.create',
             'DomainName' => $domain,
             'Years' => 1,
             'AddFreeWhoisguard' => 'yes',
             'WGEnabled' => 'yes',
-            // Is Command se auto-renew by default handle hota hai, 
-            // lekin hum purchase ke baad alag se command bhejenge safety ke liye.
-            'RegistrantFirstName' => $userData['first_name'],
-            'RegistrantLastName' => $userData['last_name'],
-            'RegistrantAddress1' => $userData['address'],
-            'RegistrantCity' => $userData['city'],
-            'RegistrantStateProvince' => $userData['state'],
-            'RegistrantPostalCode' => $userData['zip'],
-            'RegistrantCountry' => $userData['country'],
-            'RegistrantPhone' => $userData['phone'],
-            'RegistrantEmailAddress' => $userData['email'],
-        ]);
+        ];
+
+        // Contact details jo sab jagah repeat hongi
+        $contactDetails = [
+            'FirstName' => $userData['first_name'],
+            'LastName'  => $userData['last_name'],
+            'Address1'  => $userData['address'],
+            'City'      => $userData['city'],
+            'StateProvince' => $userData['state'],
+            'PostalCode'    => $userData['zip'],
+            'Country'       => $userData['country'],
+            'Phone'         => '+92.' . ltrim($userData['phone'], '0'), // Format: +92.313...
+            'EmailAddress'  => $userData['email'],
+        ];
+
+        // Chaar types ke contacts generate karna
+        $contactTypes = ['Registrant', 'Tech', 'Admin', 'AuxBilling'];
+        $finalContacts = [];
+
+        foreach ($contactTypes as $type) {
+            foreach ($contactDetails as $key => $value) {
+                $finalContacts[$type . $key] = $value;
+            }
+        }
+
+        $params = array_merge($this->config, $baseParams, $finalContacts);
 
         $response = Http::get($this->baseUrl, $params);
         $result = simplexml_load_string($response->body());
