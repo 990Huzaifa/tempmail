@@ -42,4 +42,20 @@ class TestController extends Controller
         }
 
     }
+
+    public function searchCheapDomain(Request $request)
+    {
+        try{
+            $keyword = $request->keyword ?? null;
+            $customTlds = $request->customTlds ?? null;
+
+            $namecheap = new NamecheapService();
+
+            $res = $namecheap->searchCheapDomain($keyword,$customTlds);
+
+             return response()->json(['status' => 'success', 'result' => $res], 200);
+        }catch(Exception $e){
+            return response()->json(['DB error' => $e->getMessage()], 500);
+        }
+    }
 }

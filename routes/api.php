@@ -40,6 +40,7 @@ Route::post('/webhook/apple', [WebhookController::class, 'handleApple']);
 Route::post('/webhook/google', [WebhookController::class, 'handleGoogle']);
 
 Route::post('buy',[TestController::class, 'purchaseDomain']);
+Route::post('search',[TestController::class, 'searchCheapDomain']);
 Route::middleware(['auth:sanctum'])->group(function () {
 
     
