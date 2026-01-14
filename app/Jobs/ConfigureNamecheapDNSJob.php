@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class ConfigureNamecheapDNSJob implements ShouldQueue
 {
@@ -31,6 +32,8 @@ class ConfigureNamecheapDNSJob implements ShouldQueue
      */
     public function handle(NamecheapService $namecheap)
     {
-        $namecheap->setupModoboaDNS($this->domain, $this->dkimRecord);
+        $res = $namecheap->setupModoboaDNS($this->domain, $this->dkimRecord);
+
+        Log::info('Here we have last job response' . $res);
     }
 }
