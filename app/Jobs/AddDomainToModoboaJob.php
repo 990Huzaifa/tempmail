@@ -35,21 +35,21 @@ class AddDomainToModoboaJob implements ShouldQueue
         
         if ($response) {
             // first insert into DB
-
+            $id = $response['pk'];
             $data = DomainRotation::create([
                 'domain_name' => $this->domain,
-                'domain_id' => $response->pk,
+                'domain_id' => $id,
                 'purchase_price' => $this->price,
                 'type' => 'public',
                 'expires_at' => now()->addYear(),
                 'is_active' => false
             ]);
             
-            Log::info($data);
+            Log::info("data added in db and and fetch dns: " . $data);
 
             // Modoboa ko thoda waqt chahiye hota hai DKIM generate karne mein
             // Isliye hum next job ko 10-20 seconds ke delay se bhejenge
-            FetchDnsFromModoboaJob::dispatch($response->pk)->delay(now()->addSeconds(20));
+            FetchDnsFromModoboaJob::dispatch($id)->delay(now()->addSeconds(20));
         }
     }
 }

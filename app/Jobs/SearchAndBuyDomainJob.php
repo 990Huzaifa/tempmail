@@ -38,21 +38,21 @@ class SearchAndBuyDomainJob implements ShouldQueue
         $pricingInfo = $namecheap->getTldPrice($selectedDomain);
         $currentPrice = (float) $pricingInfo['price'];
 
-        Log::info("Condition Check Debug:", [
-            'success_val' => $domainInfo['success'],
-            'currency_val' => $pricingInfo['currency'],
-            'price_val' => $currentPrice,
-            'is_success_true' => ($domainInfo['success'] == true),
-            'is_currency_usd' => ($pricingInfo['currency'] == 'USD'),
-            'is_price_low' => ($currentPrice <= 3)
-        ]);
+        // Log::info("Condition Check Debug:", [
+        //     'success_val' => $domainInfo['success'],
+        //     'currency_val' => $pricingInfo['currency'],
+        //     'price_val' => $currentPrice,
+        //     'is_success_true' => ($domainInfo['success'] == true),
+        //     'is_currency_usd' => ($pricingInfo['currency'] == 'USD'),
+        //     'is_price_low' => ($currentPrice <= 3)
+        // ]);
 
         if (
             (bool)$domainInfo['success'] === true && 
             trim($pricingInfo['currency']) === 'USD' && 
             $currentPrice <= 3.00
         ) {
-            Log::info("Condition Passed! Starting Purchase for: " . $selectedDomain);
+            // Log::info("Condition Passed! Starting Purchase for: " . $selectedDomain);
             $userData = [
                 "first_name" => "suraj",
                 "last_name" => "kumar",
@@ -67,7 +67,7 @@ class SearchAndBuyDomainJob implements ShouldQueue
             $purchase = $namecheap->purchaseDomain($selectedDomain, $userData);
             Log::info("Purchase Response:", ['res' => $purchase]);
             if ($purchase['success'] === true) {
-                Log::info("Dispatching AddDomainToModoboaJob for: " . $selectedDomain);
+                // Log::info("Dispatching AddDomainToModoboaJob for: " . $selectedDomain);
                 AddDomainToModoboaJob::dispatch($selectedDomain, $currentPrice);
             }
         } else{
