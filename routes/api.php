@@ -27,6 +27,11 @@ Route::get('/optimize-clear', function () {
     return 'Optimization cache cleared!';
 });
 
+Route::get('/run-job', function () {
+    Artisan::call('app:rotate-mail-domain');
+    return 'Optimization cache cleared!';
+});
+
 
 Route::post('signup', [AuthController::class, 'signup']);
 Route::post('signin', [AuthController::class, 'signin']);
