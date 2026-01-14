@@ -87,4 +87,12 @@ class TestController extends Controller
 
         return $res['dkim_public_key'];
     }
+
+    public function getList(){
+        $namecheap = new NamecheapService();
+        $res = $namecheap->getlist();
+
+
+        return response()->json($res);
+    }
 }

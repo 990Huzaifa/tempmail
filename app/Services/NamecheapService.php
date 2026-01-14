@@ -291,4 +291,14 @@ class NamecheapService
         return simplexml_load_string($response->body());
     }
 
+
+    public function getlist()
+    {
+        $response = Http::get($this->baseUrl, array_merge($this->config, [
+            'Command'     => 'namecheap.domains.getList',
+        ]));
+
+        $xml = simplexml_load_string($response->body());
+        return $xml;
+    }
 }

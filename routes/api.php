@@ -47,6 +47,12 @@ Route::post('/webhook/google', [WebhookController::class, 'handleGoogle']);
 Route::post('buy',[TestController::class, 'purchaseDomain']);
 Route::post('search',[TestController::class, 'searchCheapDomain']);
 Route::get('find/{id}',[TestController::class, 'getDomainInfo']);
+
+
+Route::get('list',[TestController::class, 'getList']);
+
+
+
 Route::middleware(['auth:sanctum'])->group(function () {
 
     
