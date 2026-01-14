@@ -34,7 +34,7 @@ class NamecheapService
     public function searchCheapDomain($customKeyword = null, $customTld = null)
     {
         $keyword = $customKeyword ?? $this->generateKeywords();
-        $defaultTlds = ['.store', '.site', '.space', '.xyz'];
+        $defaultTlds = ['.store', '.site', '.space'];
         
         if ($customTld) {
             // Ensure karein ke TLD dot (.) se start ho raha ho
