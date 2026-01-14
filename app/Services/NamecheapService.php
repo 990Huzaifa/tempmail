@@ -249,11 +249,12 @@ class NamecheapService
             'Command' => 'namecheap.domains.dns.setHosts',
             'SLD' => $sld,
             'TLD' => $tld,
+            'EmailType' => 'MX',
             
             // 1. A Record for Mail Server (mail.domain.com)
-            // 'HostName1' => 'mail',
-            // 'RecordType1' => 'A',
-            // 'Address1' => $serverIp,
+            'HostName1' => 'mail',
+            'RecordType1' => 'A',
+            'Address1' => $this->config['ClientIp'],
 
             // 2. MX Record (@ -> mail.domain.com)
             'HostName2' => '@',
