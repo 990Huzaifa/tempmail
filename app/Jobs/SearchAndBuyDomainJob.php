@@ -47,7 +47,12 @@ class SearchAndBuyDomainJob implements ShouldQueue
             'is_price_low' => ($currentPrice <= 3)
         ]);
 
-        if ($domainInfo['success'] == true && $pricingInfo['currency'] == 'USD' && $currentPrice <= 3) {
+        if (
+            (bool)$domainInfo['success'] === true && 
+            trim($pricingInfo['currency']) === 'USD' && 
+            $currentPrice <= 3.00
+        ) {
+            Log::info("Condition Passed! Starting Purchase for: " . $selectedDomain);
             $userData = [
                 "first_name" => "suraj",
                 "last_name" => "kumar",
@@ -60,11 +65,13 @@ class SearchAndBuyDomainJob implements ShouldQueue
                 "email" => "surajkumar00244vk@gmail.com",
             ]; 
             $purchase = $namecheap->purchaseDomain($selectedDomain, $userData);
-            Log::info($purchase);
+            Log::info("Purchase Response:", ['res' => $purchase]);
             if ($purchase['success'] === true) {
-                // Agli Job ko chain mein daalna
+                Log::info("Dispatching AddDomainToModoboaJob for: " . $selectedDomain);
                 AddDomainToModoboaJob::dispatch($selectedDomain);
             }
+        } else{
+            Log::warning("Condition Failed for: " . $selectedDomain);
         }
     }
 }
