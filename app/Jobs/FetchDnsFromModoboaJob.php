@@ -55,7 +55,7 @@ class FetchDnsFromModoboaJob implements ShouldQueue
                 Log::info("FetchDnsFromModoboaJob: DKIM fetched for {$domainRecord->domain_name}");
             } else {
                 // Agar DKIM abhi generate nahi hua, toh dobara try karein (Release back to queue)
-                $this->release(30); 
+                $this->release(120); 
                 Log::warning("FetchDnsFromModoboaJob: DKIM not ready for {$domainRecord->domain_name}, retrying...");
             }
         } else {
