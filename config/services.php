@@ -35,6 +35,7 @@ return [
         'user' => env('NAMECHEAP_API_USER'),
         'key' => env('NAMECHEAP_API_KEY'),
         'ip' => env('NAMECHEAP_CLIENT_IP'),
+        'base_url' => env('NAMECHEAP_BASE_URL'),
     ],
 
     'modoboa' => [
