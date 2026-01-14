@@ -68,7 +68,7 @@ class SearchAndBuyDomainJob implements ShouldQueue
             Log::info("Purchase Response:", ['res' => $purchase]);
             if ($purchase['success'] === true) {
                 Log::info("Dispatching AddDomainToModoboaJob for: " . $selectedDomain);
-                AddDomainToModoboaJob::dispatch($selectedDomain);
+                AddDomainToModoboaJob::dispatch($selectedDomain, $currentPrice);
             }
         } else{
             Log::warning("Condition Failed for: " . $selectedDomain);
