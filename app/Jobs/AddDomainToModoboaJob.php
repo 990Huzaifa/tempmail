@@ -49,7 +49,7 @@ class AddDomainToModoboaJob implements ShouldQueue
 
             // Modoboa ko thoda waqt chahiye hota hai DKIM generate karne mein
             // Isliye hum next job ko 10-20 seconds ke delay se bhejenge
-            FetchDnsFromModoboaJob::dispatch($id)->delay(now()->addSeconds(20));
+            FetchDnsFromModoboaJob::dispatch($id)->delay(now()->addSeconds(120));
         }
     }
 }
