@@ -184,20 +184,30 @@ class NamecheapService
         $params = array_merge($this->config, $baseParams, $finalContacts);
 
         $response = Http::get($this->baseUrl, $params);
-        $result = simplexml_load_string($response->body());
-        Log::info($result);
-        // return $result;
-        if ((string)$result['Status'] === 'OK') {
-            // Purchase successful, ab Auto-Renew OFF karein
+        $xml = simplexml_load_string($response->body());
+        Log::info("Raw Namecheap Response:", json_decode(json_encode($xml), true));
+
+        if ((string)$xml['Status'] === 'OK') {
+            
+            $createResult = $xml->CommandResponse->DomainCreateResult;
+            
+            // Auto-Renew OFF (Background mein)
             $this->disableAutoRenew($domain);
+
             return [
                 'success' => true,
-                'domain' => (string)$result->CommandResponse->DomainCreateResult['Domain'],
-                'charged' => (string)$result->CommandResponse->DomainCreateResult['ChargedAmount'],
-                'order_id' => (string)$result->CommandResponse->DomainCreateResult['OrderID']
+                'domain' => (string)$createResult['Domain'],
+                'charged' => (string)$createResult['ChargedAmount'],
+                'order_id' => (string)$createResult['OrderID']
             ];
         }
-        return $result;
+        $errorMessage = isset($xml->Errors->Error) ? (string)$xml->Errors->Error : 'Unknown Namecheap Error';
+        Log::error("Purchase Failed for $domain: " . $errorMessage);
+
+        return [
+            'success' => false,
+            'message' => $errorMessage
+        ];
     }
 
     // 4. Disable Auto-Renewal
