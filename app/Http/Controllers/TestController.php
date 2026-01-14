@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\FetchDnsFromModoboaJob;
 use App\Services\ModoboaService;
 use App\Services\NamecheapService;
 use Exception;
@@ -81,6 +82,8 @@ class TestController extends Controller
         $modoboa = new ModoboaService();
 
         $res = $modoboa->getDomainDetails($id);
+
+        FetchDnsFromModoboaJob::dispatch($id);
 
         return $res['dkim_public_key'];
     }

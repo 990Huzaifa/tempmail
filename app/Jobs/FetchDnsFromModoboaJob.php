@@ -31,7 +31,10 @@ class FetchDnsFromModoboaJob implements ShouldQueue
     {
         // 1. Database se domain ka naam uthaein ID ke zariye
         $domainRecord = DomainRotation::where('domain_id', $this->domainId)->first();
-
+        Log::info("DB record", [
+            'data' => $domainRecord,
+            'domain_id' => $this->domainId
+        ]);
         if (!$domainRecord) {
             Log::error("FetchDnsFromModoboaJob: Domain record not found for ID: {$this->domainId}");
             return;
@@ -43,9 +46,8 @@ class FetchDnsFromModoboaJob implements ShouldQueue
         $res = $modoboa->getDomainDetails($this->domainId);
 
         if (isset($res['dkim_public_key'])) {
-            // DKIM key nikalne ke liye Modoboa ke records loop karein
-            $dkimRecord = null;
             
+            $dkimRecord = $res['dkim_public_key'];            
 
             if ($dkimRecord) {
                 // 3. DKIM mil gaya, ab Namecheap DNS configure karne wali job trigger karein
