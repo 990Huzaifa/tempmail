@@ -36,7 +36,7 @@ class SearchAndBuyDomainJob implements ShouldQueue
 
         // verify price
         $pricingInfo = $namecheap->getTldPrice($selectedDomain);
-        // if ($domainInfo['success'] == true) {
+        Log::info($pricingInfo);
         if ($domainInfo['success'] == true && $pricingInfo['currency'] == 'USD' && $pricingInfo['price'] <= 3) {
             $userData = [
                 "first_name" => "suraj",
