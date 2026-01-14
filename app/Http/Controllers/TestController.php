@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\AddDomainToModoboaJob;
 use App\Jobs\FetchDnsFromModoboaJob;
 use App\Services\ModoboaService;
 use App\Services\NamecheapService;
@@ -94,5 +95,13 @@ class TestController extends Controller
 
 
         return response()->json($res);
+    }
+
+    public function addDomain(Request $request)
+    {
+        $domain = $request->domain;
+        $price = $request->price;
+        AddDomainToModoboaJob::dispatch($domain,$price);
+        return response()->json('added');
     }
 }

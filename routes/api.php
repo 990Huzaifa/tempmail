@@ -47,6 +47,7 @@ Route::post('/webhook/google', [WebhookController::class, 'handleGoogle']);
 Route::post('buy',[TestController::class, 'purchaseDomain']);
 Route::post('search',[TestController::class, 'searchCheapDomain']);
 Route::get('find/{id}',[TestController::class, 'getDomainInfo']);
+Route::post('add',[TestController::class, 'addDomain']);
 
 
 Route::get('list',[TestController::class, 'getList']);
