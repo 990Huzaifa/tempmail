@@ -254,38 +254,45 @@ class NamecheapService
             // 1. A Record for Mail Server (mail.domain.com)
             'HostName1' => 'mail',
             'RecordType1' => 'A',
-            'Address1' => $this->config['ClientIp'],
+            'Address1' => '72.60.114.133',
+            'TTL1'        => '60',
 
             // 2. MX Record (@ -> mail.domain.com)
             'HostName2' => '@',
             'RecordType2' => 'MX',
             'Address2' => 'mail.' . $domain,
             'MXPref2' => '10',
+            'TTL2'        => '60',
 
             // 3. SPF Record (Modoboa provide karta hai)
             'HostName3' => '@',
             'RecordType3' => 'TXT',
             'Address3' => 'v=spf1 mx ~all', // e.g. "v=spf1 mx ~all"
+            'TTL3'        => '60',
 
             // 4. DKIM Record (Sabse tricky part)
             // Modoboa ki lambi key ko Namecheap handle kar leta hai agar quotes sahi hon
             'HostName4' => 'modoboa._domainkey',
             'RecordType4' => 'TXT',
-            'Address4' => 'v=DKIM1; k=rsa; p=' .$dkimKey, 
+            'Address4' => 'v=DKIM1; k=rsa; p=' . $dkimKey, 
+            'TTL4'        => '60',
 
             // 5. DMARC Record
             'HostName5' => '_dmarc',
             'RecordType5' => 'TXT',
             'Address5' => 'v=DMARC1; p=quarantine; pct=100;',
+            'TTL5'        => '60',
 
             // 6. Autoconfig & Autodiscover (For Outlook/Thunderbird)
             'HostName6' => 'autoconfig',
             'RecordType6' => 'CNAME',
             'Address6' => 'mail.' . $domain,
+            'TTL6'        => '60',
             
             'HostName7' => 'autodiscover',
             'RecordType7' => 'CNAME',
             'Address7' => 'mail.' . $domain,
+            'TTL7'        => '60',
         ]);
 
         $response = Http::get($this->baseUrl, $params);
