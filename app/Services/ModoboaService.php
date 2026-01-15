@@ -63,13 +63,13 @@ class ModoboaService {
             "is_active"     => true,
             "mailbox"       => [
                 "full_address" => $email,
-                "quota"        => $quota.'MB' ?? "5MB" // Quota string format mein
+                "quota"        => $quota.'MB' ?? "5" // Quota string format mein
             ],
             "role"          => "SimpleUsers",
             "language"      => "en",
             "phone_number"  => $phoneNumber ?? "+923133021352",
             "totp_enabled"  => true,
-            "webauthn_enabled" => true,
+            "webauthn_enabled" => false,
             "password"      => $password ?? "Inbox#pass123"
         ];
 
