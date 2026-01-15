@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\DomainRotation;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ModoboaService {
     protected $baseUrl;
@@ -97,6 +99,42 @@ class ModoboaService {
         } catch (\Exception $e) {
             Log::error("Modoboa Service Exception: " . $e->getMessage());
             return false;
+        }
+    }
+
+    public function createTempAlias($aliasEmail, $forwardTo)
+    {
+        try {
+            
+            $response = Http::withHeaders([
+                'Authorization' => 'Token ' . $this->apiToken,
+                'Content-Type'  => 'application/json',
+            ])->post($this->baseUrl  . 'aliases/', [
+                'address'     => $aliasEmail, // Jo naya temp mail user ko dikhega
+                'recipients'  => [$forwardTo], // Jahan emails receive honi hain (Master Inbox)
+                'enabled'     => true,
+                'description' => 'Temporary mail for app user'
+            ]);
+
+            if ($response->successful()) {
+                return [
+                    'status'  => 'success',
+                    'alias'   => $aliasEmail,
+                    'target'  => $forwardTo,
+                    'data'    => $response->json()
+                ];
+            }
+
+            return [
+                'status'  => 'error',
+                'message' => $response->body()
+            ];
+
+        } catch (\Exception $e) {
+            return [
+                'status'  => 'error',
+                'message' => $e->getMessage()
+            ];
         }
     }
 
