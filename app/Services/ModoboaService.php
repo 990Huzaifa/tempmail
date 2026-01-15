@@ -67,7 +67,7 @@ class ModoboaService {
             ],
             "role"          => "SimpleUsers",
             "language"      => "en",
-            "phone_number"  => $phoneNumber ?? "+92.311123456",
+            "phone_number"  => $phoneNumber ?? "+923133021352",
             "totp_enabled"  => true,
             "webauthn_enabled" => true,
             "password"      => $password ?? "Inbox#pass123"
