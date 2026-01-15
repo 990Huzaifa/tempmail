@@ -19,7 +19,8 @@ return new class extends Migration
             $table->unsignedBigInteger('domain_id');
             $table->decimal('purchase_price', 8, 2)->nullable();
             $table->timestamp('expires_at');
-            $table->enum('type',['public', 'private','exclusive']);
+            $table->enum('type',['public', 'private','exclusive','premium']);
+            $table->bigInteger('alias_count')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

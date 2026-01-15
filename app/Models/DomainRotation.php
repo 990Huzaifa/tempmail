@@ -17,6 +17,7 @@ class DomainRotation extends Model
         'purchase_price',
         'expires_at',
         'type',
+        'alias_count',
         'is_active',
     ];
 }
