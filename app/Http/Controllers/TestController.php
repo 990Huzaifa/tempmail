@@ -104,4 +104,13 @@ class TestController extends Controller
         AddDomainToModoboaJob::dispatch($domain,$price);
         return response()->json('added');
     }
+
+
+    public function creatAccount(Request $request)
+    {
+        $email = 'master@' . $request->domain;
+
+        $modoboa = new ModoboaService();
+        $modoboa->createAccount($email);
+    }
 }

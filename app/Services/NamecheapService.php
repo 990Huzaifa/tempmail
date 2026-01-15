@@ -222,21 +222,6 @@ class NamecheapService
         // lekin ye command safety ke liye hai.
     }
 
-    // public function syncDomainWithModoboa($domain, $modoboaApiResponse) 
-    // {
-    //     // Modoboa API se records extract karna (Example keys)
-    //     $rawDkim = $modoboaApiResponse['dkim_record']; // "v=DKIM1; k=rsa; p=MIIB..."
-    //     $rawSpf  = $modoboaApiResponse['spf_record'];  // "v=spf1 mx ~all"
-        
-    //     $data = [
-    //         'dkim' => formatModoboaRecord($rawDkim, 'DKIM'),
-    //         'spf'  => formatModoboaRecord($rawSpf, 'SPF'),
-    //     ];
-
-    //     // Ab wahi purana setup function call karein
-    //     return $this->setupModoboaDNS($domain);
-    // }
-
     // 5. Setup Modoboa DNS Records (MX, SPF, DKIM, DMARC)
     public function setupModoboaDNS($domain, $dkimKey)
     {
@@ -296,7 +281,25 @@ class NamecheapService
         ]);
 
         $response = Http::get($this->baseUrl, $params);
-        return simplexml_load_string($response->body());
+
+        $xml = simplexml_load_string($response->body());
+        if ((string)$xml['Status'] === 'OK') {
+            
+            $createResult = $xml->CommandResponse->DomainCreateResult;
+            
+
+            return [
+                'success' => true,
+                'message' => "account created successfully"
+            ];
+        }
+        $errorMessage = isset($xml->Errors->Error) ? (string)$xml->Errors->Error : 'Unknown Namecheap Error';
+        Log::error("Account creation Failed for : " . $errorMessage);
+
+        return [
+            'success' => false,
+            'message' => $errorMessage
+        ];
     }
 
 

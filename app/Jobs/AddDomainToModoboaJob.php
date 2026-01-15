@@ -37,7 +37,7 @@ class AddDomainToModoboaJob implements ShouldQueue
             // first insert into DB
             $id = $response['pk'];
             $data = DomainRotation::create([
-                'domain_name' => $this->domain,
+                'domain_name' => strtolower($this->domain),
                 'domain_id' => $id,
                 'purchase_price' => $this->price,
                 'type' => 'public',

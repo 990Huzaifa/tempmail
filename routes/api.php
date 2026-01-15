@@ -48,6 +48,7 @@ Route::post('buy',[TestController::class, 'purchaseDomain']);
 Route::post('search',[TestController::class, 'searchCheapDomain']);
 Route::get('find/{id}',[TestController::class, 'getDomainInfo']);
 Route::post('add',[TestController::class, 'addDomain']);
+Route::post('add-account',[TestController::class, 'creatAccount']);
 
 
 Route::get('list',[TestController::class, 'getList']);

@@ -35,5 +35,9 @@ class ConfigureNamecheapDNSJob implements ShouldQueue
         $res = $namecheap->setupModoboaDNS($this->domain, $this->dkimRecord);
 
         Log::info('Here we have last job response' . $res);
+
+        if($res['success'] == true){
+            AddAccountToModoboa::dispatch($this->domain);
+        }
     }
 }
