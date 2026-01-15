@@ -63,7 +63,7 @@ class ModoboaService {
             "is_active"     => true,
             "mailbox"       => [
                 "full_address" => $email,
-                "quota"        => $quota.'MB' ?? "5" // Quota string format mein
+                "quota"        => $quota ? (int)$quota : 5 // Quota int format mein
             ],
             "role"          => "SimpleUsers",
             "language"      => "en",
