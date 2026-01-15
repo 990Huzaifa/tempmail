@@ -54,7 +54,7 @@ class ModoboaService {
     public function createAccount($email, $password = null, $phoneNumber = null, $quota = null)
     {
         // URL ke end mein trailing slash hona lazmi hai
-        $url = $this->baseUrl . "/api/v2/accounts/";
+        $url = $this->baseUrl . "api/v2/accounts/";
 
         $payload = [
             "username"      => $email,
