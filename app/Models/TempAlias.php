@@ -5,21 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DomainRotation extends Model
+class TempAlias extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'email',
-        'domain_name',
+        'alias_email',
         'domain_id',
-        'purchase_price',
         'expires_at',
-        'type',
-        'master_email',
-        'master_password',
-        'alias_count',
-        'is_active',
     ];
 }

@@ -30,14 +30,15 @@ class AddAccountToModoboa implements ShouldQueue
     public function handle(ModoboaService $modoboa): void
     {
         $email = 'master@' . $this->domain;
-        $modoboa->createAccount($email);
+        $res = $modoboa->createAccount($email);
 
         // here we add  master account in db as well
-        $domainRotation = DomainRotation::where('domain', $this->domain)->first();
-        if ($domainRotation) {
+
+        if ($res != false) {
+            $domainRotation = DomainRotation::where('domain', $this->domain)->first();
             $domainRotation->update([
                 'master_email' => $email,
-                'master_password' => 'Inbox#pass123', // Password is not stored
+                'master_password' => encrypt('Inbox#pass123'), // Password is not stored
                 'is_active' => 1
             ]);
         }

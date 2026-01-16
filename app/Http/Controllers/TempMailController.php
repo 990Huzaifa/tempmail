@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\DomainRotation;
+use App\Models\TempAlias;
 use App\Services\ModoboaService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class TempMailController extends Controller
@@ -19,7 +21,7 @@ class TempMailController extends Controller
     public function generateMail(Request $request): JsonResponse
     {
         try{
-
+            $user = Auth::user(); // Logged in user ko lein, agar available ho
             $domain = $request->domain ?? null;
             $alias = $request->alias ?? null;
             if($domain == null){
@@ -37,6 +39,15 @@ class TempMailController extends Controller
 
             $response = $this->modoboa->createTempAlias($aliasEmail, $forwardEmail);
             if($response['status'] == 'error') throw new Exception($response['data'], 500);
+
+            $aliasRecord = TempAlias::create([
+                'user_id'     => $user->id, // Agar user logged in hai
+                'alias_email' => $aliasEmail,
+                'domain_id'   => $domain->id,
+                'expires_at'  => now()->addHours(24) 
+            ]);
+
+        return response()->json(['email' => $aliasEmail]);
             return response()->json($response,200);
         }catch(Exception $e){
             return response()->json($e->getMessage(), $e->getCode() ?: 500);

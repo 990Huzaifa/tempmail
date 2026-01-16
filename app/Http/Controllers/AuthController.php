@@ -22,6 +22,28 @@ use Log;
 
 class AuthController extends Controller
 {
+
+    public function guestLogin(Request $request): JsonResponse
+    {
+        try {
+            // here we store  fetch user by device id
+            $user = User::where('device_id', $request->device_id)->first();
+            if (!$user) {
+                $user = User::create([
+                    'device_id' => $request->device_id,
+                    'ip' => $request->ip(),
+                    'app_version' => $request->app_version,
+                    'fcm_token' => $request->fcm_token,
+                ]);
+            }
+            // delete previous tokens
+            $user->tokens()->delete();
+            $token = $user->createToken('auth_token')->plainTextToken;
+            return response()->json(['token' => $token, 'user' => $user], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
+        }
+    }
     public function signup(Request $request): JsonResponse
     {
         try {
