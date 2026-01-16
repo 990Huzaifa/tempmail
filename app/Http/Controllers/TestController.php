@@ -112,5 +112,7 @@ class TestController extends Controller
 
         $modoboa = new ModoboaService();
         $modoboa->createAccount($email);
+
+        return response()->json('added account');
     }
 }
