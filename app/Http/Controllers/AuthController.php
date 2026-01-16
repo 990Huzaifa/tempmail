@@ -30,6 +30,7 @@ class AuthController extends Controller
             $user = User::where('device_id', $request->device_id)->first();
             if (!$user) {
                 $user = User::create([
+                    'name' => 'guest_' . rand(1000, 9999),
                     'device_id' => $request->device_id,
                     'ip' => $request->ip(),
                     'app_version' => $request->app_version,

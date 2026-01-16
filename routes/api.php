@@ -34,6 +34,9 @@ Route::get('/run-job', function () {
 });
 
 
+
+Route::post('signin-as-guest', [AuthController::class, 'guestLogin']);
+
 Route::post('signup', [AuthController::class, 'signup']);
 Route::post('signin', [AuthController::class, 'signin']);
 Route::post('social',[AuthController::class,'socialLoginSignup']);
