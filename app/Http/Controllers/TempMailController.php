@@ -27,7 +27,7 @@ class TempMailController extends Controller
             $alias = $request->alias ?? null;
             $getDomain = null;
             if($domain == null){
-                $getDomain = DomainRotation::where('type','public')->where('is_active',1)->orderBy('alias_count','desc')->first();
+                $getDomain = DomainRotation::where('type','public')->where('is_active',1)->orderBy('alias_count','asc')->first();
                 $domain = $getDomain->domain_name;
             }else{
                 $getDomain = DomainRotation::where('domain_name',$domain)->where('type','public')->where('is_active',1)->first();
