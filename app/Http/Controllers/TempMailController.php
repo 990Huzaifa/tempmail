@@ -6,6 +6,7 @@ use App\Models\DomainRotation;
 use App\Models\TempAlias;
 use App\Services\ModoboaService;
 use Exception;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -54,9 +55,10 @@ class TempMailController extends Controller
             ]);
 
         return response()->json(['email' => $aliasEmail]);
-            return response()->json($response,200);
-        }catch(Exception $e){
-            return response()->json($e->getMessage(), $e->getCode() ?: 500);
+        } catch (QueryException $e) {
+            return response()->json(['DB error' => $e->getMessage()], 500);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }
