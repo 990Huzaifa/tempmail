@@ -41,8 +41,10 @@ class AuthController extends Controller
             $user->tokens()->delete();
             $token = $user->createToken('auth_token')->plainTextToken;
             return response()->json(['token' => $token, 'user' => $user], 200);
+        } catch (QueryException $e) {
+            return response()->json(['DB error' => $e->getMessage()], 500);
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
     public function signup(Request $request): JsonResponse
