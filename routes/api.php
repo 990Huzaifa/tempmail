@@ -57,13 +57,13 @@ Route::post('add-account',[TestController::class, 'creatAccount']);
 
 Route::get('list',[TestController::class, 'getList']);
 
-Route::put('generate-mail',[TempMailController::class, 'generateMail']);
+
 
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    
+    Route::put('generate-mail',[TempMailController::class, 'generateMail']);
     Route::controller(ProfileController::class)->group(function () {
         Route::get('/profile', 'profile');
         Route::post('/profile', 'updateProfile');
