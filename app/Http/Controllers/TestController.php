@@ -115,10 +115,10 @@ class TestController extends Controller
         $res = $modoboa->createAccount($email);
 
         $domainRotation = DomainRotation::where('domain_name', $request->domain)->first();
-            $domainRotation->update([
-                'master_email' => $email,
-                'master_password' => encrypt('Inbox#pass123'), // Password is not stored
-            ]);
+        $domainRotation->update([
+            'master_email' => $email,
+            'master_password' => encrypt('Inbox#pass123'), // Password is not stored
+        ]);
         return response()->json($res);
     }
 }

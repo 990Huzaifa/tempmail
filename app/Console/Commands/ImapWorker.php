@@ -50,26 +50,39 @@ class ImapWorker extends Command
 
     protected function processIncomingMail($message, $domain)
     {
-        // Kis alias ko bheji gayi hai mail?
+        $this->info("--- New Message Detected ---");
+        
+        // 1. To Address Nikalein
         $toAddress = $message->getTo()[0]->mail; 
+        $this->info("Step 1: Mail sent to: " . $toAddress);
 
-        // Database mein alias check karein
+        // 2. Database mein Alias Check Karein
         $alias = TempAlias::where('alias_email', $toAddress)->first();
 
-        if ($alias) {
-            // A. Email Log Save Karein
+        if (!$alias) {
+            $this->error("Step 2: Alias NOT found in database for: " . $toAddress);
+            return;
+        }
+
+        $this->info("Step 2: Alias found for User ID: " . $alias->user_id);
+
+        try {
+            // 3. Email Log Save Karein
             $log = EmailLog::create([
                 'user_id'       => $alias->user_id,
                 'temp_alias_id' => $alias->id,
                 'from_email'    => $message->getFrom()[0]->mail,
-                'from_name'     => $message->getFrom()[0]->personal,
+                'from_name'     => $message->getFrom()[0]->personal ?? 'No Name',
                 'subject'       => $message->getSubject(),
                 'body_html'     => $message->getHTMLBody() ?? $message->getTextBody(),
                 'received_at'   => now(),
             ]);
 
-            // B. Attachments Handle Karein
+            $this->info("Step 3: Email Log saved in DB. ID: " . $log->id);
+
+            // 4. Attachments Check Karein
             if ($message->hasAttachments()) {
+                $this->info("Step 4: Attachments detected. Processing...");
                 foreach ($message->getAttachments() as $at) {
                     $filename = Str::uuid() . '_' . $at->getName();
                     Storage::disk('public')->put('attachments/' . $filename, $at->getContent());
@@ -82,15 +95,22 @@ class ImapWorker extends Command
                         'file_size'    => $at->getSize(),
                     ]);
                 }
+                $this->info("Step 4: All attachments saved.");
+            } else {
+                $this->info("Step 4: No attachments found.");
             }
 
-            // C. Real-time Event Fire Karein (Pusher/Reverb)
+            // 5. Event Trigger
+            $this->info("Step 5: Firing Real-time Event...");
             event(new \App\Events\NewMailReceived($log));
 
-            $this->info("New mail saved for alias: " . $toAddress);
-            
-            // Mail ko 'Seen' mark kar dein taake loop na bane
+            // 6. Mark as Seen
             $message->setFlag('Seen');
+            $this->info("Done: Message processed successfully!");
+
+        } catch (\Exception $e) {
+            $this->error("ERROR at Step 3/4/5: " . $e->getMessage());
+            \Log::error("IMAP Worker Error: " . $e->getMessage());
         }
     }
 }
