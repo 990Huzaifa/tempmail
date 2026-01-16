@@ -24,9 +24,15 @@ class TempMailController extends Controller
             $user = Auth::user(); // Logged in user ko lein, agar available ho
             $domain = $request->domain ?? null;
             $alias = $request->alias ?? null;
+            $getDomain = null;
             if($domain == null){
                 $getDomain = DomainRotation::where('type','public')->where('is_active',1)->orderBy('alias_count','desc')->first();
                 $domain = $getDomain->domain_name;
+            }else{
+                $getDomain = DomainRotation::where('domain_name',$domain)->where('type','public')->where('is_active',1)->first();
+                if(!$getDomain){
+                    throw new Exception("Domain not found or inactive", 404);
+                }
             }
             if($alias == null){
                 $alias = Str::random(4);
@@ -43,7 +49,7 @@ class TempMailController extends Controller
             $aliasRecord = TempAlias::create([
                 'user_id'     => $user->id, // Agar user logged in hai
                 'alias_email' => $aliasEmail,
-                'domain_id'   => $domain->id,
+                'domain_id'   => $getDomain->id,
                 'expires_at'  => now()->addHours(24) 
             ]);
 
