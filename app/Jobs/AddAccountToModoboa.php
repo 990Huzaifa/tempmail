@@ -31,5 +31,15 @@ class AddAccountToModoboa implements ShouldQueue
     {
         $email = 'master@' . $this->domain;
         $modoboa->createAccount($email);
+
+        // here we add  master account in db as well
+        $domainRotation = DomainRotation::where('domain', $this->domain)->first();
+        if ($domainRotation) {
+            $domainRotation->update([
+                'master_email' => $email,
+                'master_password' => 'Inbox#pass123', // Password is not stored
+                'is_active' => 1
+            ]);
+        }
     }
 }

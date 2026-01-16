@@ -111,8 +111,8 @@ class TestController extends Controller
         $email = 'master@' . $request->domain;
 
         $modoboa = new ModoboaService();
-        $modoboa->createAccount($email);
+        $res = $modoboa->createAccount($email);
 
-        return response()->json('added account');
+        return response()->json($res);
     }
 }
