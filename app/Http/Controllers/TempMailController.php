@@ -53,6 +53,7 @@ class TempMailController extends Controller
                 'domain_id'   => $getDomain->id,
                 'expires_at'  => now()->addHours(24) 
             ]);
+            $getDomain->increment('alias_count');
 
         return response()->json(['email' => $aliasEmail]);
         } catch (QueryException $e) {
