@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class EmailAttachment extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'email_log_id',
+        'file_name',
+        'file_path',
+        'file_type',
+        'file_size',
+    ];
 }
