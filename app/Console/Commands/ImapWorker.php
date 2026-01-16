@@ -56,6 +56,9 @@ class ImapWorker extends Command
                         foreach ($messages as $message) {
                             $this->processIncomingMail($message, $domain);
                         }
+
+                        $client->expunge(); 
+                        $this->info("Modoboa inbox purged (Expunged).");
                     }
 
                     // 5 seconds ka intezar (Isay aap kam ya zyada kar sakte hain)
@@ -132,7 +135,6 @@ class ImapWorker extends Command
             $this->info("Done: Message processed successfully!");
 
             $message->delete();
-            $message->getFolder()->expunge();
             $this->info("Done: Message deleted from Modoboa server.");
 
         } catch (\Exception $e) {
