@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\AddDomainToModoboaJob;
 use App\Jobs\FetchDnsFromModoboaJob;
+use App\Models\DomainRotation;
 use App\Services\ModoboaService;
 use App\Services\NamecheapService;
 use Exception;
@@ -113,6 +114,11 @@ class TestController extends Controller
         $modoboa = new ModoboaService();
         $res = $modoboa->createAccount($email);
 
+        $domainRotation = DomainRotation::where('domain', $request->domain)->first();
+            $domainRotation->update([
+                'master_email' => $email,
+                'master_password' => encrypt('Inbox#pass123'), // Password is not stored
+            ]);
         return response()->json($res);
     }
 }
