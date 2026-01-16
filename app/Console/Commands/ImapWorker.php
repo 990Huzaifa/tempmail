@@ -26,49 +26,26 @@ class ImapWorker extends Command
             return;
         }
 
-        $this->info("Worker Started for: " . $domain->master_email);
+        // 1. Connection Config (Dynamic)
+        $client = Client::make([
+            'host'          => 'mail.techvince.com',
+            'port'          => 993,
+            'encryption'    => 'ssl',
+            'validate_cert' => true,
+            'username'      => $domain->master_email,
+            'password'      => decrypt($domain->master_password), // Password decrypt kiya
+            'protocol'      => 'imap'
+        ]);
 
-        // Loop taake agar connection drop ho to dobara connect ho sake
-        while (true) {
-            try {
-                $client = Client::make([
-                    'host'          => 'mail.techvince.com',
-                    'port'          => 993,
-                    'encryption'    => 'ssl',
-                    'validate_cert' => true,
-                    'username'      => $domain->master_email,
-                    'password'      => decrypt($domain->master_password),
-                    'protocol'      => 'imap'
-                ]);
+        $client->connect();
+        $folder = $client->getFolder('INBOX');
 
-                $client->connect();
-                $folder = $client->getFolder('INBOX');
+        $this->info("Listening for: " . $domain->master_email);
 
-                $this->info("Connected and Checking for mails...");
-
-                // Manual Polling Loop
-                while ($client->isConnected()) {
-                    // Sirf 'Unseen' mails uthayein
-                    $messages = $folder->query()->unseen()->get();
-
-                    if ($messages->count() > 0) {
-                        $this->info($messages->count() . " new message(s) found.");
-                        foreach ($messages as $message) {
-                            $this->processIncomingMail($message, $domain);
-                        }
-                    }
-
-                    // 5 seconds ka intezar (Isay aap kam ya zyada kar sakte hain)
-                    sleep(5);
-                    
-                    // Connection zinda rakhne ke liye NOOP/Ping
-                    $client->ping();
-                }
-            } catch (\Exception $e) {
-                $this->error("Connection lost: " . $e->getMessage() . ". Retrying in 10s...");
-                sleep(10);
-            }
-        }
+        // 2. IMAP IDLE (Real-time wait)
+        $folder->idle(function($message) use ($domain) {
+            $this->processIncomingMail($message, $domain);
+        });
     }
 
     protected function processIncomingMail($message, $domain)
