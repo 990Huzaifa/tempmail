@@ -35,7 +35,7 @@ class AddAccountToModoboa implements ShouldQueue
         // here we add  master account in db as well
 
         if ($res != false) {
-            $domainRotation = DomainRotation::where('domain', $this->domain)->first();
+            $domainRotation = DomainRotation::where('domain_name', $this->domain)->first();
             $domainRotation->update([
                 'master_email' => $email,
                 'master_password' => encrypt('Inbox#pass123'), // Password is not stored
