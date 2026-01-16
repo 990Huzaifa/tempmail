@@ -39,7 +39,6 @@ class AddAccountToModoboa implements ShouldQueue
             $domainRotation->update([
                 'master_email' => $email,
                 'master_password' => encrypt('Inbox#pass123'), // Password is not stored
-                'is_active' => 1
             ]);
         }
     }
