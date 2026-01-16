@@ -131,6 +131,10 @@ class ImapWorker extends Command
             $message->setFlag('Seen');
             $this->info("Done: Message processed successfully!");
 
+            $message->delete();
+            $message->getFolder()->expunge();
+            $this->info("Done: Message deleted from Modoboa server.");
+
         } catch (\Exception $e) {
             $this->error("ERROR at Step 3/4/5: " . $e->getMessage());
             \Log::error("IMAP Worker Error: " . $e->getMessage());
