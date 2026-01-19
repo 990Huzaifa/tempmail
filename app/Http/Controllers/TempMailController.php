@@ -67,7 +67,7 @@ class TempMailController extends Controller
     public function mailBox(Request $request): JsonResponse
     {
         $user = Auth::user();
-        $alias = $user->tempAlias();
+        $alias = $user->tempAlias()->first();
 
         $mails = EmailLog::where('temp_alias_id', $alias->id)
         ->with('attachments')
