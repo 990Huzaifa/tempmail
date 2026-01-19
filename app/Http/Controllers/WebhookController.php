@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\DomainRotation;
+use App\Models\EmailAttachment;
+use App\Models\EmailLog;
+use App\Models\TempAlias;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Log;
@@ -20,6 +23,71 @@ class WebhookController extends Controller
     {
         // Handle incoming webhook data
         Log::info('Webhook received:', $request->all());
+        $alias = TempAlias::where('email', $request->input('to'))->first();
+        if (!$alias) {
+            Log::warning('Alias not found for email: ' . $request->input('to'));
+            return response()->json(['status' => 'alias not found'], 404);
+        }
+        $log = EmailLog::create([
+            'user_id'       => $alias->user_id,
+            'temp_alias_id' => $alias->id,
+            'from_email'    => $request->input('from_email'),
+            'from_name'     => $request->input('from_name'),
+            'subject'       => $request->input('subject'),
+            'body_html'     => $request->input('html_body') ?? $request->input('text_body'),
+            'received_at'   => now(),
+        ]);
+
+        if($request->input('has_attachments') == true) {
+            return response()->json(['status' => 'success', 'id' => $log->id]);
+        }
         return response()->json(['status' => 'success']);
     }
+
+    public function attachmentWebhook(Request $request, $id): JsonResponse
+    {
+        $log = EmailLog::find($id);
+        if (!$log) {
+            Log::warning('EmailLog not found for ID: ' . $id);
+            return response()->json(['status' => 'email log not found'], 404);
+        }
+
+        // ✅ attachments[] array receive karo
+        if (!$request->hasFile('attachments')) {
+            Log::warning('No attachments found for EmailLog ID: ' . $id);
+            return response()->json(['status' => 'no attachments'], 400);
+        }
+
+        $saved = [];
+
+        foreach ($request->file('attachments') as $attachment) {
+            if (!$attachment->isValid()) {
+                continue;
+            }
+
+            $originalName = $attachment->getClientOriginalName();
+            $extension    = $attachment->getClientOriginalExtension();
+
+            $fileName = uniqid('att_') . '.' . $extension;
+
+            // ✅ safe public path (or storage)
+            $attachment->move(public_path('user-attachment'), $fileName);
+
+            // (optional) DB me save
+            EmailAttachment::create([
+                'email_log_id' => $log->id,
+                'filename'     => $fileName,
+                'original'     => $originalName,
+            ]);
+
+            $saved[] = $fileName;
+        }
+
+        return response()->json([
+            'status' => 'attachments received',
+            'count'  => count($saved),
+            'files'  => $saved
+        ]);
+    }
+
 }

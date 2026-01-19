@@ -59,6 +59,7 @@ Route::get('list',[TestController::class, 'getList']);
 
 Route::get('mailboxes',[WebhookController::class, 'mailboxes']);
 Route::post('mail/webhook',[WebhookController::class, 'webhook']);
+Route::post('attachment/{id}',[WebhookController::class, 'attachmentWebhook']);
 
 
 
