@@ -64,4 +64,9 @@ class User extends Authenticatable
         }
         return false;
     }
+
+    public function tempAlias()
+    {
+        return $this->hasOne(TempAlias::class, 'user_id', 'id');
+    }
 }

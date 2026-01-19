@@ -18,4 +18,10 @@ class EmailLog extends Model
         'body_html',
         'received_at',
     ];
+
+
+    public function attachments()
+    {
+        return $this->hasMany(EmailAttachment::class, 'email_log_id', 'id');
+    }
 }
