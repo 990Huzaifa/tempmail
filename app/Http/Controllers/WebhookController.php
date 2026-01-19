@@ -23,7 +23,7 @@ class WebhookController extends Controller
     {
         // Handle incoming webhook data
         Log::info('Webhook received:', $request->all());
-        $alias = TempAlias::where('email', $request->input('to'))->first();
+        $alias = TempAlias::where('alias_email', $request->input('to'))->first();
         if (!$alias) {
             Log::warning('Alias not found for email: ' . $request->input('to'));
             return response()->json(['status' => 'alias not found'], 404);
