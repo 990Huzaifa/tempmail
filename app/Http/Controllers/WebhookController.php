@@ -11,7 +11,7 @@ class WebhookController extends Controller
 {
     public function mailboxes(Request $request): JsonResponse
     {
-        $data = DomainRotation::select('master_email as user', 'master_password as password')->get();
+        $data = DomainRotation::select('id','master_email as user', 'master_password as password')->get();
 
         return response()->json($data);
     }
