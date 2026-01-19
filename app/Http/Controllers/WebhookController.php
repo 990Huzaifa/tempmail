@@ -78,7 +78,7 @@ class WebhookController extends Controller
             // (optional) DB me save
             EmailAttachment::create([
                 'email_log_id' => $log->id,
-                'filename'     => $originalName,
+                'file_name'     => $originalName,
                 'file_path'    => 'user-attachment/' . $fileName,
                 'file_type'    => $mimeType,
                 'file_size'    => $fileSize,
