@@ -45,6 +45,8 @@ class TempMailController extends Controller
             $aliasEmail = $alias.'@' . $domain;
             $forwardEmail = 'master@' . $domain;
 
+            // make in lower case alias email
+            $aliasEmail = Str::lower($aliasEmail);
 
             $response = $this->modoboa->createTempAlias($aliasEmail, $forwardEmail);
             if($response['status'] == 'error') throw new Exception($response['data'], 500);
