@@ -39,7 +39,7 @@ class WebhookController extends Controller
         ]);
 
         if($request->input('has_attachments') == true) {
-            return response()->json(['status' => 'success', 'id' => $log->id]);
+            return response()->json(['status' => 'success', 'id' => $log->id, 'attachment' => true]);
         }
         return response()->json(['status' => 'success']);
     }
