@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('temp_aliases', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('alias_modoboa_id')->nullable();
             $table->string('alias_email')->unique();
             $table->unsignedBigInteger('domain_id');
             $table->timestamp('expires_at');

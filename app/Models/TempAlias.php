@@ -11,6 +11,7 @@ class TempAlias extends Model
 
     protected $fillable = [
         'user_id',
+        'alias_modoboa_id',
         'alias_email',
         'domain_id',
         'expires_at',

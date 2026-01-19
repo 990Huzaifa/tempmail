@@ -51,6 +51,7 @@ class TempMailController extends Controller
             Log::info("Modoboa Alise response: " . json_encode($response));
             $aliasRecord = TempAlias::create([
                 'user_id'     => $user->id, // Agar user logged in hai
+                'alias_modoboa_id' => $response['data']['pk'],
                 'alias_email' => $aliasEmail,
                 'domain_id'   => $getDomain->id,
                 'expires_at'  => now()->addMinutes('10') 
