@@ -38,8 +38,7 @@ class WebhookController extends Controller
             'received_at'   => now(),
         ]);
 
-        if($request->input('has_attachments') == true) {
-            Log::info('Email has attachments, awaiting upload for EmailLog ID: ' . $log->id);
+        if($request->input('has_attachment') == true) {
             return response()->json(['status' => 'success', 'id' => $log->id, 'attachment' => true]);
         }
         return response()->json(['status' => 'success']);
