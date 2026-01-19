@@ -66,6 +66,7 @@ Route::post('attachment/{id}',[WebhookController::class, 'attachmentWebhook']);
 Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::put('generate-mail',[TempMailController::class, 'generateMail']);
+    Route::get('mailbox',[TempMailController::class, 'mailBox']);
     Route::controller(ProfileController::class)->group(function () {
         Route::get('/profile', 'profile');
         Route::post('/profile', 'updateProfile');

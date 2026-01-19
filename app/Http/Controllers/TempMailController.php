@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DomainRotation;
+use App\Models\EmailLog;
 use App\Models\TempAlias;
 use App\Services\ModoboaService;
 use Exception;
@@ -61,5 +62,15 @@ class TempMailController extends Controller
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function mailBox(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $aliases = TempAlias::where('user_id', $user->id)->with('domain')->get();
+
+        $mails = EmailLog::whereIn('temp_alias_id', $aliases->pluck('id'))->get();
+
+        return response()->json(['aliases' => $aliases, 'mails' => $mails]);
     }
 }
