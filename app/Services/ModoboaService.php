@@ -138,4 +138,14 @@ class ModoboaService {
         }
     }
 
+    public function deleteTempAlias($modoboaId)
+    {
+        $response = Http::withHeaders([
+                'Authorization' => 'Token ' . $this->apiToken,
+                'Content-Type'  => 'application/json',
+            ])->delete($this->baseUrl  . 'aliases/' . $modoboaId . '/');
+
+        return $response->json();
+    }
+
 }

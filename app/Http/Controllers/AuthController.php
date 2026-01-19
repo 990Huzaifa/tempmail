@@ -26,6 +26,18 @@ class AuthController extends Controller
     public function guestLogin(Request $request): JsonResponse
     {
         try {
+            $validator = Validator::make($request->all(), [
+                'device_id' => 'required',
+                'app_version' => 'required|string',
+                'fcm_token' => 'required|string',
+            ], [
+                'device_id.required' => 'Device ID is required',
+                'app_version.required' => 'App version is required',
+                'fcm_token.required' => 'FCM Token is required',
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
             // here we store  fetch user by device id
             $user = User::where('device_id', $request->device_id)->first();
             if (!$user) {

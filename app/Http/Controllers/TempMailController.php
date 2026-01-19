@@ -11,6 +11,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class TempMailController extends Controller
@@ -47,12 +48,12 @@ class TempMailController extends Controller
 
             $response = $this->modoboa->createTempAlias($aliasEmail, $forwardEmail);
             if($response['status'] == 'error') throw new Exception($response['data'], 500);
-
+            Log::info("Modoboa Alise response: " . $response);
             $aliasRecord = TempAlias::create([
                 'user_id'     => $user->id, // Agar user logged in hai
                 'alias_email' => $aliasEmail,
                 'domain_id'   => $getDomain->id,
-                'expires_at'  => now()->addHours(24) 
+                'expires_at'  => now()->addMinutes('10') 
             ]);
             $getDomain->increment('alias_count');
 

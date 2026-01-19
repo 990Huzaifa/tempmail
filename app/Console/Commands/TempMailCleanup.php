@@ -6,8 +6,9 @@ use Illuminate\Console\Command;
 use App\Models\TempAlias;
 use App\Models\EmailLog;
 use App\Models\EmailAttachment;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class TempMailCleanup extends Command
 {
@@ -16,12 +17,7 @@ class TempMailCleanup extends Command
 
     public function handle()
     {
-        // 1. Sirf 'free' users ke wo aliases uthao jo 10 mins purane hain
-        $expiredAliases = TempAlias::whereHas('user', function($q) {
-                $q->where('plan', 'free'); 
-            })
-            ->where('created_at', '<', now()->subMinutes(10))
-            ->get();
+        $expiredAliases = TempAlias::where('expires_at', '<', now())->get();
 
         $this->info("Found " . $expiredAliases->count() . " expired aliases.");
 
@@ -37,11 +33,7 @@ class TempMailCleanup extends Command
                 // Physical storage se files delete karna
                 $attachments = EmailAttachment::where('email_log_id', $log->id)->get();
                 foreach ($attachments as $at) {
-                    $purePath = str_replace('storage/', '', $at->file_path);
-                    if (Storage::disk('public')->exists($purePath)) {
-                        Storage::disk('public')->delete($purePath);
-                    }
-                    $at->delete();
+                    unlink(public_path($at->file_path));
                 }
                 $log->delete();
             }
@@ -52,17 +44,4 @@ class TempMailCleanup extends Command
         }
     }
 
-    protected function deleteFromModoboa($alias)
-    {
-        try {
-            // Modoboa Admin API Token aur URL
-            $response = Http::withToken('YOUR_MODOBOA_API_TOKEN')
-                ->delete("https://mail.techvince.com/api/v2/aliases/{$alias->modoboa_id}/");
-            
-            return $response->successful();
-        } catch (\Exception $e) {
-            \Log::error("Modoboa Deletion Failed for {$alias->alias_email}: " . $e->getMessage());
-            return false;
-        }
-    }
 }
