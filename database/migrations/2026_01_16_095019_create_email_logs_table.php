@@ -13,13 +13,17 @@ return new class extends Migration
     {
         Schema::create('email_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained(); // Kaunsa app user hai
-            $table->foreignId('temp_alias_id')->constrained(); // Kis alias par mail aayi
+            $table->unsignedBigInteger('user_id'); // Kaunsa app user hai
+            $table->unsignedBigInteger('temp_alias_id'); // Kis alias par mail aayi
             $table->string('from_email');
             $table->string('from_name')->nullable();
             $table->string('subject')->nullable();
             $table->longText('body_html'); // Poori email ka content
             $table->timestamp('received_at');
+            $table->timestamp('is_read')->nullable();
+
+            $table->foreign('temp_alias_id')->references('id')->on('temp_aliases')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

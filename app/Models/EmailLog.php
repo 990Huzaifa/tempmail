@@ -17,6 +17,7 @@ class EmailLog extends Model
         'subject',
         'body_html',
         'received_at',
+        'is_read',
     ];
 
 

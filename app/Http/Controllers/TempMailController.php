@@ -85,4 +85,20 @@ class TempMailController extends Controller
 
         return response()->json(['mails' => $mails]);
     }
+
+    public function readMail(Request $request, $mailId): JsonResponse
+    {
+        $mail = EmailLog::find($mailId);
+
+        if (!$mail) {
+            return response()->json(['error' => 'Mail not found'], 404);
+        }
+
+        // Mark as read
+        if (!$mail->is_read) {
+            $mail->update(['is_read' => now()]);
+        }
+
+        return response()->json(['mail' => $mail, 'message' => 'Mail marked as read']);
+    }
 }
