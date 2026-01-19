@@ -39,6 +39,7 @@ class WebhookController extends Controller
         ]);
 
         if($request->input('has_attachments') == true) {
+            Log::info('Email has attachments, awaiting upload for EmailLog ID: ' . $log->id);
             return response()->json(['status' => 'success', 'id' => $log->id, 'attachment' => true]);
         }
         return response()->json(['status' => 'success']);
@@ -86,12 +87,9 @@ class WebhookController extends Controller
 
             $saved[] = $fileName;
         }
+        Log::info('Attachments saved for EmailLog ID: ' . $id . ', Files: ' . implode(', ', $saved));
 
-        return response()->json([
-            'status' => 'attachments received',
-            'count'  => count($saved),
-            'files'  => $saved
-        ]);
+        return response()->json(['status' => 'success']);
     }
 
 }
