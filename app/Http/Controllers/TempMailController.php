@@ -48,7 +48,7 @@ class TempMailController extends Controller
 
             $response = $this->modoboa->createTempAlias($aliasEmail, $forwardEmail);
             if($response['status'] == 'error') throw new Exception($response['data'], 500);
-            Log::info("Modoboa Alise response: " . $response);
+            Log::info("Modoboa Alise response: " . json_encode($response));
             $aliasRecord = TempAlias::create([
                 'user_id'     => $user->id, // Agar user logged in hai
                 'alias_email' => $aliasEmail,
