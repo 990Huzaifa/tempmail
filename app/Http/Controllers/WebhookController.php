@@ -66,6 +66,8 @@ class WebhookController extends Controller
             }
 
             $originalName = $attachment->getClientOriginalName();
+            $mimeType     = $attachment->getClientMimeType();
+            $fileSize     = $attachment->getSize(); // 👈 SAFE HERE
             $extension    = $attachment->getClientOriginalExtension();
 
             $fileName = uniqid('att_') . '.' . $extension;
@@ -78,8 +80,8 @@ class WebhookController extends Controller
                 'email_log_id' => $log->id,
                 'filename'     => $originalName,
                 'file_path'    => 'user-attachment/' . $fileName,
-                'file_type'    => $attachment->getClientMimeType(),
-                'file_size'    => $attachment->getSize(),
+                'file_type'    => $mimeType,
+                'file_size'    => $fileSize,
             ]);
 
             $saved[] = $fileName;
