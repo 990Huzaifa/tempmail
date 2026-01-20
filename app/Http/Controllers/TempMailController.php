@@ -105,4 +105,13 @@ class TempMailController extends Controller
 
         return response()->json(['mail' => $mail, 'message' => 'Mail marked as read']);
     }
+
+
+
+    // Other methods...
+    public function domainlist(Request $request): JsonResponse
+    {
+        $domains = DomainRotation::select('domain_name','type','id')->where('is_active',1)->get();
+        return response()->json(['domains' => $domains]);
+    }
 }

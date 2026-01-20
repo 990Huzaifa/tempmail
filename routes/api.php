@@ -68,6 +68,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('generate-mail',[TempMailController::class, 'generateMail']);
     Route::get('mailbox',[TempMailController::class, 'mailBox']);
     Route::get('read-mail/{id}',[TempMailController::class, 'readMail']);
+    Route::get('domain-list',[TempMailController::class, 'domainlist']);    
     Route::controller(ProfileController::class)->group(function () {
         Route::get('/profile', 'profile');
         Route::post('/profile', 'updateProfile');
