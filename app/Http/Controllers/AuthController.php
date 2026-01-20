@@ -59,6 +59,7 @@ class AuthController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
     public function signup(Request $request): JsonResponse
     {
         try {
@@ -90,6 +91,8 @@ class AuthController extends Controller
                 'device_id' => $request->device_id,
                 'fcm_token' => $request->fcm_token,
                 'remember_token' => $token,
+                'app_version' => $request->app_version,
+                'ip' => $request->ip(),
             ]);
 
             // Mail::to($request->email)->send(new VerifyAccountMail([
