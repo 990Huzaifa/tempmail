@@ -134,7 +134,17 @@ class TempMailController extends Controller
 
         return response()->json(['mail' => $mail, 'message' => 'Mail marked as read']);
     }
+    public function inboxList(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $aliases = TempAlias::where('user_id', $user->id)->get();
 
+        if (!$aliases) {
+            return response()->json(['error' => 'No temporary alias found'], 404);
+        }
+
+        return response()->json(['inbox' => $aliases]);
+    }
     public function activateMailboxes($id): JsonResponse
     {
         $user = Auth::user();
