@@ -68,7 +68,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::put('generate-mail',[TempMailController::class, 'generateMail']);
     Route::get('mailbox',[TempMailController::class, 'mailBox']);
-    Route::get('inbox-list',[TempMailController::class, 'inboxList']);
+    Route::get('email-list',[TempMailController::class, 'emailList']);
     Route::get('activate-mailbox/{id}',[TempMailController::class, 'activateMailboxes']);
     Route::get('read-mail/{id}',[TempMailController::class, 'readMail']);
     
