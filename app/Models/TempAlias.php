@@ -15,5 +15,6 @@ class TempAlias extends Model
         'alias_email',
         'domain_id',
         'expires_at',
+        'in_use'
     ];
 }

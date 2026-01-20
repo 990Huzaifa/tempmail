@@ -57,20 +57,36 @@ class TempMailController extends Controller
             $response = $this->modoboa->createTempAlias($aliasEmail, $forwardEmail);
             if($response['status'] == 'error') throw new Exception($response['data'], 500);
 
-            // delete old alias if exists for the user
-            // $oldAlias = TempAlias::where('user_id', $user->id)->first();
-            // if($user->isPremium()  == false){
-            //     $this->modoboa->deleteTempAlias($oldAlias->alias_modoboa_id);
-            //     $getDomain->decrement('alias_count');
-            //     $oldAlias->delete();
-            // }
-            $aliasRecord = TempAlias::create([
-                'user_id'     => $user->id, // Agar user logged in hai
-                'alias_modoboa_id' => $response['data']['pk'],
-                'alias_email' => $aliasEmail,
-                'domain_id'   => $getDomain->id,
-                'expires_at'  => now()->addMinutes('10') 
-            ]);
+            // delete old alias if exists for the user on free plan and create new one
+            if(!$user->isPremium()){
+                $oldAlias = TempAlias::where('user_id', $user->id)->first();
+                if($user->isPremium()  == false){
+                    $this->modoboa->deleteTempAlias($oldAlias->alias_modoboa_id);
+                    $getDomain->decrement('alias_count');
+                    $oldAlias->delete();
+                }
+
+                $aliasRecord = TempAlias::create([
+                    'user_id'     => $user->id, // Agar user logged in hai
+                    'alias_modoboa_id' => $response['data']['pk'],
+                    'alias_email' => $aliasEmail,
+                    'domain_id'   => $getDomain->id,
+                    'expires_at'  => now()->addMinutes('10'),
+                    'in_use'      => true 
+                ]);
+            }else{
+                // set all existing alias in_use to false
+                TempAlias::where('user_id', $user->id)->update(['in_use' => false]);
+                // create new alias record with in_use true
+                $aliasRecord = TempAlias::create([
+                    'user_id'     => $user->id, // Agar user logged in hai
+                    'alias_modoboa_id' => $response['data']['pk'],
+                    'alias_email' => $aliasEmail,
+                    'domain_id'   => $getDomain->id,
+                    'expires_at'  => null,
+                    'in_use'      => true 
+                ]);
+            }
             $getDomain->increment('alias_count');
 
         return response()->json(['email' => $aliasEmail]);
@@ -86,7 +102,13 @@ class TempMailController extends Controller
     public function mailBox(Request $request): JsonResponse
     {
         $user = Auth::user();
-        $alias = $user->tempAlias()->first();
+        $query = TempAlias::where('user_id', $user->id)->orderBy('created_at', 'desc');
+
+        if($user->isPremium()){
+            $query = $query->where('in_use', true);
+        }
+        $alias = $query->first();
+
         if (!$alias) {
             return response()->json(['error' => 'No temporary alias found'], 404);
         }
@@ -113,7 +135,17 @@ class TempMailController extends Controller
         return response()->json(['mail' => $mail, 'message' => 'Mail marked as read']);
     }
 
+    public function activateMailboxes(Request $request, $id): JsonResponse
+    {
+        $user = Auth::user();
+        $alias = TempAlias::where('user_id', $user->id)->where('id', $id)->first();
+        if (!$alias) {
+            return response()->json(['error' => 'Alias not found'], 404);
+        }
+        $alias->update(['in_use' => true]);
 
+        return response()->json(['success' => 'Mailbox activated']);
+    }
 
     // Other methods...
     public function domainlist(Request $request): JsonResponse
