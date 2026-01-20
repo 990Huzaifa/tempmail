@@ -51,7 +51,7 @@ class TempMailController extends Controller
             // check  availability in DB
             $existingAlias = TempAlias::where('alias_email', $aliasEmail)->first();
             if ($existingAlias) {
-                throw new Exception("Alias email already exists. Please try a different alias.", 409);
+                return response()->json(['error' => 'Already in use'], 409);
             }
 
             $response = $this->modoboa->createTempAlias($aliasEmail, $forwardEmail);
