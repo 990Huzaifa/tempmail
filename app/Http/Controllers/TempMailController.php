@@ -135,7 +135,7 @@ class TempMailController extends Controller
         return response()->json(['mail' => $mail, 'message' => 'Mail marked as read']);
     }
 
-    public function activateMailboxes(Request $request, $id): JsonResponse
+    public function activateMailboxes($id): JsonResponse
     {
         $user = Auth::user();
         $alias = TempAlias::where('user_id', $user->id)->where('id', $id)->first();
