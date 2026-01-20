@@ -52,6 +52,9 @@ class AuthController extends Controller
             // delete previous tokens
             $user->tokens()->delete();
             $token = $user->createToken('auth_token')->plainTextToken;
+            // add plan info
+            $plan = $user->subscription()->where('status', 'active')->first()->plan ?? 'Free';
+            $user->plan = $plan;
             return response()->json(['token' => $token, 'user' => $user], 200);
         } catch (QueryException $e) {
             return response()->json(['DB error' => $e->getMessage()], 500);
@@ -213,7 +216,9 @@ class AuthController extends Controller
             $user->tokens()->delete();
             $token = $user->createToken('auth_token')->plainTextToken;
             $user->update(['last_login_at' => now(),'fcm_token' => $request->fcm_token, 'ip' => $request->ip(),'app_version' => $request->app_version,'device_id' => $request->device_id,]);
-
+            // add plan info
+            $plan = $user->subscription()->where('status', 'active')->first()->plan ?? 'Free';
+            $user->plan = $plan;
             return response()->json(['token' => $token,'user' => $user], 200);
 
         }catch(Exception $e){
@@ -282,6 +287,9 @@ class AuthController extends Controller
                 'last_login_at' => now(),
                 'device_id' => $request->device_id,
             ]);
+            // add plan info
+            $plan = $user->subscription()->where('status', 'active')->first()->plan ?? 'Free';
+            $user->plan = $plan;
             DB::commit();
             return response()->json(['token' => $token, 'user' => $user], 200);
         }catch(Exception $e){
