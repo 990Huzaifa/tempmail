@@ -31,13 +31,19 @@ class WebhookController extends Controller
             Log::warning('Alias not found for email: ' . $request->input('to'));
             return response()->json(['status' => 'alias not found'], 404);
         }
+
+        $bodyHtml = $request->input('html_body') ?? $request->input('text_body') ?? '';
+
+        $initialSize = strlen($bodyHtml);
+
         $log = EmailLog::create([
             'user_id'       => $alias->user_id,
             'temp_alias_id' => $alias->id,
             'from_email'    => $request->input('from_email'),
             'from_name'     => $request->input('from_name'),
             'subject'       => $request->input('subject'),
-            'body_html'     => $request->input('html_body') ?? $request->input('text_body'),
+            'body_html'     => $bodyHtml,
+            'mail_size'     => $initialSize, // initial size without attachments
             'received_at'   => now(),
         ]);
 
@@ -62,6 +68,8 @@ class WebhookController extends Controller
             //         ]
             //     );
             // }
+
+            // update mail size
         }
         return response()->json(['status' => 'success']);
     }
@@ -80,17 +88,19 @@ class WebhookController extends Controller
             return response()->json(['status' => 'no attachments'], 400);
         }
 
-        $saved = [];
-
+        // $saved = [];
+        $totalAttachmentSize = 0;
         foreach ($request->file('attachments') as $attachment) {
             if (!$attachment->isValid()) {
                 continue;
             }
-
+            
             $originalName = $attachment->getClientOriginalName();
             $mimeType     = $attachment->getClientMimeType();
             $fileSize     = $attachment->getSize(); // 👈 SAFE HERE
             $extension    = $attachment->getClientOriginalExtension();
+
+            $totalAttachmentSize += $fileSize;
 
             $fileName = uniqid('att_') . '.' . $extension;
 
@@ -106,8 +116,9 @@ class WebhookController extends Controller
                 'file_size'    => $fileSize,
             ]);
 
-            $saved[] = $fileName;
+            // $saved[] = $fileName;
         }
+        $log->increment('mail_size', $totalAttachmentSize);
         broadcast(new NewMailReceived($log));
 
             // send fcm notification
@@ -126,7 +137,7 @@ class WebhookController extends Controller
         //         ]
         //     );
         // }
-        Log::info('Attachments saved for EmailLog ID: ' . $id . ', Files: ' . implode(', ', $saved));
+        // Log::info('Attachments saved for EmailLog ID: ' . $id . ', Files: ' . implode(', ', $saved));
 
         return response()->json(['status' => 'success']);
     }

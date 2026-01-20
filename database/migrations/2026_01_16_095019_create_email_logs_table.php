@@ -21,7 +21,7 @@ return new class extends Migration
             $table->longText('body_html'); // Poori email ka content
             $table->timestamp('received_at');
             $table->timestamp('is_read')->nullable();
-
+            $table->bigInteger('mail_size')->default(0); // Mail ka size in bytes
             $table->foreign('temp_alias_id')->references('id')->on('temp_aliases')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
