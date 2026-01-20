@@ -17,6 +17,10 @@ class ProfileController extends Controller
     {
         try{
             $user = Auth::user();
+
+            // add plan info
+            $plan = $user->subscription()->where('status', 'active')->first()->plan ?? 'Free';
+            $user->plan = $plan;
             return response()->json(['user' => $user], 200);
         } catch (Exception $e) {
             return response()->json(['message' => 'Something went wrong, please try again later.'], 500);
