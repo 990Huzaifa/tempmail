@@ -32,7 +32,7 @@ class TempMailController extends Controller
                 $getDomain = DomainRotation::where('type','public')->where('is_active',1)->orderBy('alias_count','asc')->first();
                 $domain = $getDomain->domain_name;
             }else{
-                $getDomain = DomainRotation::where('domain_name',$domain)->where('type','public')->where('is_active',1)->first();
+                $getDomain = DomainRotation::where('domain_name',$domain)->where('is_active',1)->first();
                 if(!$getDomain){
                     throw new Exception("Domain not found or inactive", 404);
                 }
@@ -77,7 +77,9 @@ class TempMailController extends Controller
         } catch (QueryException $e) {
             return response()->json(['DB error' => $e->getMessage()], 500);
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            $code = $e->getCode();
+            $code = ($code >= 100 && $code <= 599) ? $code : 500;
+            return response()->json(['error' => $e->getMessage()], $code);
         }
     }
 
