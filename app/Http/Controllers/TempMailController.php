@@ -148,6 +148,8 @@ class TempMailController extends Controller
     public function activateMailboxes($id): JsonResponse
     {
         $user = Auth::user();
+        // set all alias in_use to false
+        TempAlias::where('user_id', $user->id)->update(['in_use' => false]);
         $alias = TempAlias::where('user_id', $user->id)->where('id', $id)->first();
         if (!$alias) {
             return response()->json(['error' => 'Alias not found'], 404);
