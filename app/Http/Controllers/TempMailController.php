@@ -80,7 +80,9 @@ class TempMailController extends Controller
     {
         $user = Auth::user();
         $alias = $user->tempAlias()->first();
-
+        if (!$alias) {
+            return response()->json(['error' => 'No temporary alias found'], 404);
+        }
         $mails = EmailLog::where('temp_alias_id', $alias->id)
         ->with('attachments')
         ->get();
