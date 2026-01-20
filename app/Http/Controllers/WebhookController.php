@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewMailReceived;
 use App\Models\DomainRotation;
 use App\Models\EmailAttachment;
 use App\Models\EmailLog;
 use App\Models\TempAlias;
+use App\Models\User;
+use App\Services\FirebaseService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Log;
@@ -40,6 +43,25 @@ class WebhookController extends Controller
 
         if($request->input('has_attachment') == true) {
             return response()->json(['status' => 'success', 'id' => $log->id, 'attachment' => true]);
+        }else{
+            broadcast(new NewMailReceived($log));
+
+            // send fcm notification
+            // $user = User::find($alias->user_id);
+            // if ($user && $user->fcm_token != null) {
+            //     $fcmService = new FirebaseService();
+            //     $fcmService->sendToDevice(
+            //         $user->fcm_token,
+            //         'New Email Received',
+            //         'You have received a new email from ' . $log->from_email,
+            //         [
+            //             'email_log_id' => $log->id,
+            //             'alias_id'     => $alias->id,
+            //             'sender'       => $log->from_email,
+            //             'subject'      => $log->subject,
+            //         ]
+            //     );
+            // }
         }
         return response()->json(['status' => 'success']);
     }
@@ -86,6 +108,24 @@ class WebhookController extends Controller
 
             $saved[] = $fileName;
         }
+        broadcast(new NewMailReceived($log));
+
+            // send fcm notification
+        // $user = User::find($log->user_id);
+        // if ($user && $user->fcm_token != null) {
+        //     $fcmService = new FirebaseService();
+        //     $fcmService->sendToDevice(
+        //         $user->fcm_token,
+        //         'New Email Received',
+        //         'You have received a new email from ' . $log->from_email,
+        //         [
+        //             'email_log_id' => $log->id,
+        //             'alias_id'     => $log->temp_alias_id,
+        //             'sender'       => $log->from_email,
+        //             'subject'      => $log->subject,
+        //         ]
+        //     );
+        // }
         Log::info('Attachments saved for EmailLog ID: ' . $id . ', Files: ' . implode(', ', $saved));
 
         return response()->json(['status' => 'success']);

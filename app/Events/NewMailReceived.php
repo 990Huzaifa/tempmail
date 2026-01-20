@@ -10,16 +10,18 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class NewMailReceived
+class NewMailReceived implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    public $emailLog;
 
     /**
      * Create a new event instance.
      */
-    public function __construct()
+    public function __construct($emailLog)
     {
-        //
+        $this->emailLog = $emailLog;
     }
 
     /**
@@ -30,7 +32,23 @@ class NewMailReceived
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new PrivateChannel('user.' . $this->emailLog->user_id),
         ];
+    }
+
+    public function broadcastWith(): array
+    {
+        return [
+            'id' => $this->emailLog->id,
+            'alias_id' => $this->emailLog->alias_id,
+            'sender' => $this->emailLog->sender,
+            'subject' => $this->emailLog->subject,
+            'received_at' => $this->emailLog->created_at->toISOString(),
+        ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'MailReceived';
     }
 }
