@@ -48,17 +48,22 @@ class TempMailController extends Controller
             // make in lower case alias email
             $aliasEmail = Str::lower($aliasEmail);
 
+            // check  availability in DB
+            $existingAlias = TempAlias::where('alias_email', $aliasEmail)->first();
+            if ($existingAlias) {
+                throw new Exception("Alias email already exists. Please try a different alias.", 409);
+            }
+
             $response = $this->modoboa->createTempAlias($aliasEmail, $forwardEmail);
             if($response['status'] == 'error') throw new Exception($response['data'], 500);
-            Log::info("Modoboa Alise response: " . json_encode($response));
 
             // delete old alias if exists for the user
-            $oldAlias = TempAlias::where('user_id', $user->id)->first();
-            if($oldAlias){
-                $this->modoboa->deleteTempAlias($oldAlias->alias_modoboa_id);
-                $getDomain->decrement('alias_count');
-                $oldAlias->delete();
-            }
+            // $oldAlias = TempAlias::where('user_id', $user->id)->first();
+            // if($user->isPremium()  == false){
+            //     $this->modoboa->deleteTempAlias($oldAlias->alias_modoboa_id);
+            //     $getDomain->decrement('alias_count');
+            //     $oldAlias->delete();
+            // }
             $aliasRecord = TempAlias::create([
                 'user_id'     => $user->id, // Agar user logged in hai
                 'alias_modoboa_id' => $response['data']['pk'],
