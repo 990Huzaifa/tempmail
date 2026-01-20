@@ -116,7 +116,7 @@ class TempMailController extends Controller
         ->with('attachments')
         ->get();
 
-        return response()->json(['mails' => $mails]);
+        return response()->json(['alias' => $alias->alias_email, 'mails' => $mails]);
     }
 
     public function readMail(Request $request, $mailId): JsonResponse
