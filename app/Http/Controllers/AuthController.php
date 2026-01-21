@@ -98,14 +98,17 @@ class AuthController extends Controller
                 'ip' => $request->ip(),
             ]);
 
-            Mail::to($request->email)->send(new VerifyAccountMail([
-                'name' => $user->name,
-                'subject' => 'Verify Your Email',
-                'message' => 'We received a request to verify your email address. Use the one-time password (OTP) below to complete your verification.',
-                'otp' => $token,
-                'is_url' => false
-            ]));
+            // Mail::to($request->email)->send(new VerifyAccountMail([
+            //     'message' => 'Hi ' . $data->first_name . $data->last_name . ', This is your one time password',
+            //     'otp' => $token,
+            //     'is_url' => false
+            // ]));
 
+            // $brevo = new BrevoService();
+            // $htmlContent = "<html><body><p>Hi " . $data->name . ",</p><p>This is your account verification code: <strong>" . $token . "</strong></p></body></html>";
+            // $res = $brevo->sendMail('Account Verification Code', $data->email, $data->name, $htmlContent);
+
+             myMailSend($request->email, $user->name ,'Email Verification', $token);
             DB::commit();
             return response()->json(['message' => 'Your account has been created successfully'], 200);
         } catch (QueryException $e) {
@@ -335,15 +338,19 @@ class AuthController extends Controller
 
             
 
-            Mail::to($request->email)->send(new VerifyAccountMail([
-                'name' => $user->name,
-                'subject' => 'Reset Your Password',
-                'message' => 'We received a request to reset your password. Use the one-time password (OTP) below to verify your identity and create a new password.',
-                'otp' => $token,
-                'is_url' => false
-            ]));
+            // Mail::to($request->email)->send(new OTPMail([
+            //     'message' => 'Hi ' . $user->first_name . $user->last_name . 'This is your one time password',
+            //     'otp' => $token,
+            //     'is_url' => false
+            // ],'Reset Password OTP'));
 
-            
+            myMailSend(
+                    $user->email,
+                    $user->name,
+                    'Reset Your Password',
+                    'We received a request to reset your password. Use the one-time password (OTP) below to verify your identity and create a new password.',
+                    $token,
+                );
             return response()->json([
                 'message' => 'Reset OTP sent successfully',
             ], 200);
@@ -431,27 +438,27 @@ class AuthController extends Controller
                     'token' => $token,
                     'created_at' => now()
                 ]);
-                Mail::to($request->email)->send(new VerifyAccountMail([
-                    'name' => $user->name,
-                    'subject' => 'Reset Your Password',
-                    'message' => 'We received a request to reset your password. Use the one-time password (OTP) below to verify your identity and create a new password.',
-                    'otp' => $token,
-                    'is_url' => false
-                ]));
-                    
+                myMailSend(
+                    $user->email,
+                    $user->name,
+                    'Reset Your Password',
+                    'We received a request to reset your password. Use the one-time password (OTP) below to verify your identity and create a new password.',
+                    $token,
+                );
+                
             }else if($request->type == 'email-verify'){
                 if($user->email_verified_at != null)throw new Exception('Email already verified');
                 $user->update([
                     'remember_token' => $token
                 ]);
 
-                Mail::to($request->email)->send(new VerifyAccountMail([
-                    'name' => $user->name,
-                    'subject' => 'Verify Your Email',
-                    'message' => 'We received a request to verify your email address. Use the one-time password (OTP) below to complete your verification.',
-                    'otp' => $token,
-                    'is_url' => false
-                ]));
+                myMailSend(
+                    $user->email,
+                    $user->name,
+                    'Verify Your Email',
+                    'We received a request to verify your email address. Use the one-time password (OTP) below to complete your verification.',
+                    $token,
+                );
                 
             }
             
