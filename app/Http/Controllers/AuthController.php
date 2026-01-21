@@ -348,8 +348,8 @@ class AuthController extends Controller
                     $user->email,
                     $user->name,
                     'Reset Your Password',
-                    'We received a request to reset your password. Use the one-time password (OTP) below to verify your identity and create a new password.',
-                    $token,
+                    'We received a request to reset your password. Use the one-time password (OTP) below to verify your identity and create a new password.'.
+                    '<br><br><b>OTP:</b> '.$token,
                 );
             return response()->json([
                 'message' => 'Reset OTP sent successfully',
@@ -442,8 +442,8 @@ class AuthController extends Controller
                     $user->email,
                     $user->name,
                     'Reset Your Password',
-                    'We received a request to reset your password. Use the one-time password (OTP) below to verify your identity and create a new password.',
-                    $token,
+                    'We received a request to reset your password. Use the one-time password (OTP) below to verify your identity and create a new password.'.
+                    '<br><br><b>OTP:</b> '.$token,
                 );
                 
             }else if($request->type == 'email-verify'){
@@ -456,8 +456,8 @@ class AuthController extends Controller
                     $user->email,
                     $user->name,
                     'Verify Your Email',
-                    'We received a request to verify your email address. Use the one-time password (OTP) below to complete your verification.',
-                    $token,
+                    'We received a request to verify your email address. Use the one-time password (OTP) below to complete your verification.'.
+                    '<br><br><b>OTP:</b> '.$token,
                 );
                 
             }
