@@ -39,7 +39,7 @@ class AuthController extends Controller
                 return response()->json(['errors' => $validator->errors()], 422);
             }
             // here we store  fetch user by device id
-            $user = User::where('device_id', $request->device_id)->first();
+            $user = User::where('device_id', $request->device_id)->where('is_deleted', false)->first();
             if (!$user) {
                 $user = User::create([
                     'name' => 'guest_' . rand(1000, 9999),
@@ -98,17 +98,14 @@ class AuthController extends Controller
                 'ip' => $request->ip(),
             ]);
 
-            // Mail::to($request->email)->send(new VerifyAccountMail([
-            //     'message' => 'Hi ' . $data->first_name . $data->last_name . ', This is your one time password',
-            //     'otp' => $token,
-            //     'is_url' => false
-            // ]));
+            Mail::to($request->email)->send(new VerifyAccountMail([
+                'name' => $user->name,
+                'subject' => 'Verify Your Email',
+                'message' => 'We received a request to verify your email address. Use the one-time password (OTP) below to complete your verification.',
+                'otp' => $token,
+                'is_url' => false
+            ]));
 
-            // $brevo = new BrevoService();
-            // $htmlContent = "<html><body><p>Hi " . $data->name . ",</p><p>This is your account verification code: <strong>" . $token . "</strong></p></body></html>";
-            // $res = $brevo->sendMail('Account Verification Code', $data->email, $data->name, $htmlContent);
-
-             myMailSend($request->email, $user->first_name . $user->last_name ,'Email Verification', $token);
             DB::commit();
             return response()->json(['message' => 'Your account has been created successfully'], 200);
         } catch (QueryException $e) {
@@ -276,6 +273,9 @@ class AuthController extends Controller
 
             DB::beginTransaction();
             $user = User::where('email', $request->email)->first();
+            if($user->status != 'active') throw new Exception('Your account is not active', 400);
+            // if(!$user->email_verified_at) throw new Exception('Your account is not verified', 400);
+            if($user->is_deleted) throw new Exception('Invalid email address or password', 400);
             if (!Hash::check($request->password, $user->password)) throw new Exception('Invalid email address or password', 400);
             $user->tokens()->delete();
             $token = $user->createToken('auth_token')->plainTextToken; 
@@ -335,13 +335,15 @@ class AuthController extends Controller
 
             
 
-            // Mail::to($request->email)->send(new OTPMail([
-            //     'message' => 'Hi ' . $user->first_name . $user->last_name . 'This is your one time password',
-            //     'otp' => $token,
-            //     'is_url' => false
-            // ],'Reset Password OTP'));
+            Mail::to($request->email)->send(new VerifyAccountMail([
+                'name' => $user->name,
+                'subject' => 'Reset Your Password',
+                'message' => 'We received a request to reset your password. Use the one-time password (OTP) below to verify your identity and create a new password.',
+                'otp' => $token,
+                'is_url' => false
+            ]));
 
-            myMailSend($request->email, $user->first_name . $user->last_name ,'Reset Password OTP', $token);
+            
             return response()->json([
                 'message' => 'Reset OTP sent successfully',
             ], 200);
@@ -429,27 +431,27 @@ class AuthController extends Controller
                     'token' => $token,
                     'created_at' => now()
                 ]);
-                myMailSend(
-                    $user->email,
-                    $user->first_name . ' ' . $user->last_name,
-                    'Verify Your Email',
-                    'We received a request to reset your password. Use the one-time password (OTP) below to verify your identity and create a new password.',
-                    $token,
-                );
-                
+                Mail::to($request->email)->send(new VerifyAccountMail([
+                    'name' => $user->name,
+                    'subject' => 'Reset Your Password',
+                    'message' => 'We received a request to reset your password. Use the one-time password (OTP) below to verify your identity and create a new password.',
+                    'otp' => $token,
+                    'is_url' => false
+                ]));
+                    
             }else if($request->type == 'email-verify'){
                 if($user->email_verified_at != null)throw new Exception('Email already verified');
                 $user->update([
                     'remember_token' => $token
                 ]);
 
-                myMailSend(
-                    $user->email,
-                    $user->first_name . ' ' . $user->last_name,
-                    'Verify Your Email',
-                    'We received a request to verify your email address. Use the one-time password (OTP) below to complete your verification.',
-                    $token,
-                );
+                Mail::to($request->email)->send(new VerifyAccountMail([
+                    'name' => $user->name,
+                    'subject' => 'Verify Your Email',
+                    'message' => 'We received a request to verify your email address. Use the one-time password (OTP) below to complete your verification.',
+                    'otp' => $token,
+                    'is_url' => false
+                ]));
                 
             }
             
@@ -506,6 +508,18 @@ class AuthController extends Controller
         }
     }
 
+    public function deleteAccount(Request $request): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            $user->is_deleted = true;
+            $user->save();
+            $user->tokens()->delete();
+            return response()->json(['message' => 'Account deleted successfully'], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 
 
 }

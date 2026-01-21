@@ -30,6 +30,7 @@ class User extends Authenticatable
         'facebook_id',
         'apple_id',
         'ip',
+        'is_deleted',
     ];
 
     /**
