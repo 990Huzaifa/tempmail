@@ -16,6 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('domain_name');
+            $table->longText('master_email');
+            $table->longText('master_password');
             $table->unsignedBigInteger('domain_id');
             $table->decimal('purchase_price', 8, 2)->nullable();
             $table->timestamp('expires_at');

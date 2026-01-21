@@ -88,7 +88,7 @@ class WebhookController extends Controller
             return response()->json(['status' => 'no attachments'], 400);
         }
 
-        // $saved = [];
+        $saved = [];
         $totalAttachmentSize = 0;
         foreach ($request->file('attachments') as $attachment) {
             if (!$attachment->isValid()) {
@@ -116,7 +116,7 @@ class WebhookController extends Controller
                 'file_size'    => $fileSize,
             ]);
 
-            // $saved[] = $fileName;
+            $saved[] ='user-attachment/' . $fileName;
         }
         $log->increment('mail_size', $totalAttachmentSize);
         broadcast(new NewMailReceived($log));

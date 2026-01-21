@@ -16,6 +16,7 @@ class NewMailReceived implements ShouldBroadcast
 
     public $emailLog;
 
+
     /**
      * Create a new event instance.
      */
@@ -23,7 +24,7 @@ class NewMailReceived implements ShouldBroadcast
     {
         $this->emailLog = $emailLog;
     }
-
+    
     /**
      * Get the channels the event should broadcast on.
      *
@@ -40,8 +41,9 @@ class NewMailReceived implements ShouldBroadcast
     {
         return [
             'id' => $this->emailLog->id,
-            'alias_id' => $this->emailLog->alias_id,
-            'sender' => $this->emailLog->sender,
+            'temp_alias_id' => $this->emailLog->temp_alias_id,
+            'from_email' => $this->emailLog->from_email,
+            'from_name' => $this->emailLog->from_name,
             'subject' => $this->emailLog->subject,
             'received_at' => $this->emailLog->created_at->toISOString(),
         ];
