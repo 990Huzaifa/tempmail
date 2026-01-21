@@ -60,9 +60,11 @@ class TempMailController extends Controller
             // delete old alias if exists for the user on free plan and create new one
             if($user->isPremium()  == false){
                 $oldAlias = TempAlias::where('user_id', $user->id)->first();
-                $this->modoboa->deleteTempAlias($oldAlias->alias_modoboa_id);
-                $getDomain->decrement('alias_count');
-                $oldAlias->delete();
+                if($oldAlias){
+                    $this->modoboa->deleteTempAlias($oldAlias->alias_modoboa_id);
+                    $getDomain->decrement('alias_count');
+                    $oldAlias->delete();
+                }
 
 
                 $aliasRecord = TempAlias::create([
