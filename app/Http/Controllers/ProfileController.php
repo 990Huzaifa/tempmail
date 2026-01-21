@@ -34,22 +34,15 @@ class ProfileController extends Controller
             
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string',
-                'email' => 'required|email|unique:users,email,'.$user->id,
-                'phone' => 'nullable|string',
             ],[
-                'email.unique' => 'The email has already been taken.',
-                'email.email' => 'The email must be a valid email address.',
                 'name.required' => 'The name field is required.',
                 'name.string' => 'The name must be a string.',
-                'phone.string' => 'The phone must be a string.',
             ]);
 
             if ($validator->fails()) throw new Exception($validator->errors()->first(), 400);
 
             $user->update([
                 'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
             ]);
             
             return response()->json(['message' => 'Profile updated successfully.', 'user' => $user], 200);
