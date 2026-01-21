@@ -515,18 +515,6 @@ class AuthController extends Controller
         }
     }
 
-    public function deleteAccount(Request $request): JsonResponse
-    {
-        try {
-            $user = Auth::user();
-            $user->is_deleted = true;
-            $user->save();
-            $user->tokens()->delete();
-            return response()->json(['message' => 'Account deleted successfully'], 200);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
 
 
 }
