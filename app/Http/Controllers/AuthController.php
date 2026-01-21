@@ -276,7 +276,7 @@ class AuthController extends Controller
 
             DB::beginTransaction();
             $user = User::where('email', $request->email)->first();
-            if($user->status != 'active') throw new Exception('Your account is not active', 400);
+            // if($user->status != 'active') throw new Exception('Your account is not active', 400);
             // if(!$user->email_verified_at) throw new Exception('Your account is not verified', 400);
             if($user->is_deleted) throw new Exception('Invalid email address or password', 400);
             if (!Hash::check($request->password, $user->password)) throw new Exception('Invalid email address or password', 400);
