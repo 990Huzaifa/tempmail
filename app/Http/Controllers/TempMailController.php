@@ -58,13 +58,12 @@ class TempMailController extends Controller
             if($response['status'] == 'error') throw new Exception($response['data'], 500);
 
             // delete old alias if exists for the user on free plan and create new one
-            if(!$user->isPremium()){
+            if($user->isPremium()  == false){
                 $oldAlias = TempAlias::where('user_id', $user->id)->first();
-                if($user->isPremium()  == false){
-                    $this->modoboa->deleteTempAlias($oldAlias->alias_modoboa_id);
-                    $getDomain->decrement('alias_count');
-                    $oldAlias->delete();
-                }
+                $this->modoboa->deleteTempAlias($oldAlias->alias_modoboa_id);
+                $getDomain->decrement('alias_count');
+                $oldAlias->delete();
+
 
                 $aliasRecord = TempAlias::create([
                     'user_id'     => $user->id, // Agar user logged in hai
@@ -157,6 +156,48 @@ class TempMailController extends Controller
         $alias->update(['in_use' => true]);
 
         return response()->json(['success' => 'Mailbox activated']);
+    }
+
+
+    public function deleteMailbox($id): JsonResponse
+    {
+        $user = Auth::user();
+        $alias = TempAlias::where('user_id', $user->id)->where('id', $id)->first();
+        if (!$alias) {
+            return response()->json(['error' => 'Alias not found'], 404);
+        }
+        // delete from modoboa
+        $this->modoboa->deleteTempAlias($alias->alias_modoboa_id);
+        // decrement domain alias count
+        $domain = DomainRotation::where('id', $alias->domain_id)->first();
+        if($domain){
+            $domain->decrement('alias_count');
+        }
+        // delete from DB
+        $alias->delete();
+
+        return response()->json(['success' => 'Mailbox deleted']);
+    }
+
+    public function deleteMail(Request $request, $mailId): JsonResponse
+    {
+        $user = Auth::user();
+        $mail = EmailLog::find($mailId);
+
+        if (!$mail) {
+            return response()->json(['error' => 'Mail not found'], 404);
+        }
+
+        // Check if the mail belongs to the user's alias
+        $alias = TempAlias::where('user_id', $user->id)->where('id', $mail->temp_alias_id)->first();
+        if (!$alias) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Delete the mail
+        $mail->delete();
+
+        return response()->json(['success' => 'Mail deleted']);
     }
 
     // Other methods...
