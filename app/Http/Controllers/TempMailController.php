@@ -208,4 +208,17 @@ class TempMailController extends Controller
         $domains = DomainRotation::select('domain_name','type','id')->where('is_active',1)->get();
         return response()->json(['domains' => $domains]);
     }
+
+    public function show($id): JsonResponse
+    {
+        try{
+            $mail = EmailLog::with('attachments')->find($id);
+            if (!$mail) {
+                return response()->json(['error' => 'Mail not found'], 404);
+            }
+            return response()->json(['mail' => $mail]);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }
