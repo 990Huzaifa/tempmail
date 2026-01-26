@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TempMailController;
 use App\Http\Controllers\TestController;
@@ -82,5 +83,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         route::delete('/delete-account', 'deleteAccount');
     });
+
+    Route::post('feedback', [FeedbackController::class, 'store']);
 
 });

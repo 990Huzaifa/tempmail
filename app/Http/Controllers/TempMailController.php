@@ -17,10 +17,12 @@ use Illuminate\Support\Str;
 class TempMailController extends Controller
 {
     protected $modoboa;
+    
     public function __construct(ModoboaService $modoboaService) {
         
         $this->modoboa = $modoboaService;
     }
+
     public function generateMail(Request $request): JsonResponse
     {
         try{
