@@ -120,14 +120,6 @@ class TempMailController extends Controller
         ->with('attachments')
         ->get();
 
-        $mails->getCollection()->transform(function ($item) use ($tzcode) {
-                if ($item->received_at) {
-                    $item->received_at = Carbon::parse($item->received_at, 'UTC')
-                        ->setTimezone($tzcode)
-                        ->toISOString();
-                }
-                return $item;
-            });
 
         return response()->json(['alias' => $alias->alias_email, 'mails' => $mails]);
     }
