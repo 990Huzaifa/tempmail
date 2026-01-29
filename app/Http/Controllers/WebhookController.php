@@ -46,7 +46,7 @@ class WebhookController extends Controller
             'body_html'     => $bodyHtml,
             'mail_size'     => $initialSize, // initial size without attachments
             // /in UTC
-            'received_at'   => now()->toDateTimeString(),
+            'received_at'   => now()->toISOString(),
         ]);
 
         if($request->input('has_attachment') == true) {

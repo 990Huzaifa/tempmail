@@ -21,6 +21,10 @@ class EmailLog extends Model
         'mail_size',
     ];
 
+    protected $casts = [
+        'received_at' => 'datetime',
+        'is_read'     => 'datetime', // Agar is_read date store karta hai
+    ];
 
     public function attachments()
     {
