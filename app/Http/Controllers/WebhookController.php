@@ -9,6 +9,7 @@ use App\Models\EmailLog;
 use App\Models\TempAlias;
 use App\Models\User;
 use App\Services\FirebaseService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Log;
@@ -44,7 +45,8 @@ class WebhookController extends Controller
             'subject'       => $request->input('subject'),
             'body_html'     => $bodyHtml,
             'mail_size'     => $initialSize, // initial size without attachments
-            'received_at'   => now(),
+            // /in UTC
+            'received_at'   => now()->toDateTimeString(),
         ]);
 
         if($request->input('has_attachment') == true) {

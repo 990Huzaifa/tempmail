@@ -6,6 +6,7 @@ use App\Models\DomainRotation;
 use App\Models\EmailLog;
 use App\Models\TempAlias;
 use App\Services\ModoboaService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -106,7 +107,7 @@ class TempMailController extends Controller
     {
         $user = Auth::user();
         $query = TempAlias::where('user_id', $user->id)->orderBy('created_at', 'desc');
-
+        $tzcode = $request->header('Timezone', 'UTC');
         if($user->isPremium()){
             $query = $query->where('in_use', true);
         }
@@ -118,6 +119,15 @@ class TempMailController extends Controller
         $mails = EmailLog::where('temp_alias_id', $alias->id)
         ->with('attachments')
         ->get();
+
+        $mails->getCollection()->transform(function ($item) use ($tzcode) {
+                if ($item->received_at) {
+                    $item->received_at = Carbon::parse($item->received_at, 'UTC')
+                        ->setTimezone($tzcode)
+                        ->toISOString();
+                }
+                return $item;
+            });
 
         return response()->json(['alias' => $alias->alias_email, 'mails' => $mails]);
     }
