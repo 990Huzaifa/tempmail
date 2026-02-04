@@ -40,6 +40,10 @@ return [
 
     'modoboa' => [
         'token' => env('MODOBOA_TOKEN')
+    ],
+
+    'mail_hook' => [
+        'api_key' => env('MAIL_HOOK_KEY')
     ]
 
 ];

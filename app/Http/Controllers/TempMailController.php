@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\DomainRotation;
 use App\Models\EmailLog;
+use App\Models\SentBox;
+use App\Models\SentBoxAttachment;
 use App\Models\TempAlias;
 use App\Models\TempAliasForwarding;
 use App\Services\ModoboaService;
@@ -287,6 +289,107 @@ class TempMailController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+
+    // composing
+
+    public function composeMail(Request $request): JsonResponse
+    {
+        try{
+            $user = Auth::user();
+            $validator = Validator::make($request->all(), [
+                'to' => 'required|array|min:1', // Ab hum array le rahe hain
+                'to.*' => 'email', // Array ka har item valid email hona chahiye
+                'subject' => 'required|string',
+                'body' => 'required|string',
+                'attachments' => 'array',
+            ],[
+                'to.required' => 'To is required',
+                'to.array' => 'To must be an array',
+                'to.min' => 'At least one recipient is required',
+                'to.*.email' => 'Invalid email format',
+                'subject.required' => 'Subject is required',
+                'body.required' => 'Body is required',
+                'attachments.array' => 'Attachments must be an array',
+            ]);
+            if($validator->fails()){
+                return response()->json(['error' => $validator->errors()], 422);
+            }
+
+            $alias = TempAlias::with('domain')->findOrFail($request->temp_alias_id);
+    
+            $masterUser = $alias->domain->master_email; // e.g. master@1ozzmail.store
+            $fromEmail  = $alias->alias_email;         // Jo temp mail user use kar raha hai
+
+            $result = $this->modoboa->sendOutgoingEmail(
+                $masterUser,
+                $fromEmail,
+                $request->to, 
+                $request->subject,
+                $request->body,
+                $request->file('attachments') ?? []
+            );
+
+            // store data in DB
+            $initialSize = strlen($request->body);
+            $sentmail = SentBox::create([
+                'from_email' => $fromEmail,
+                'to_email' => implode(',', $request->to),
+                'subject' => $request->subject,
+                'body_html' => $request->body,
+                'alias_id' => $alias->id,
+                'mail_size' => $initialSize, // initial size without attachments
+            ]);
+
+            // add attachment
+
+            $saved = [];
+            $totalAttachmentSize = 0;
+            foreach ($request->file('attachments') as $attachment) {
+                if (!$attachment->isValid()) {
+                    continue;
+                }
+                
+                $originalName = $attachment->getClientOriginalName();
+                $mimeType     = $attachment->getClientMimeType();
+                $fileSize     = $attachment->getSize(); // 👈 SAFE HERE
+                $extension    = $attachment->getClientOriginalExtension();
+
+                $totalAttachmentSize += $fileSize;
+
+                $fileName = uniqid('sent_att_') . '.' . $extension;
+
+                // ✅ safe public path (or storage)
+                $attachment->move(public_path('user-attachment'), $fileName);
+
+                // (optional) DB me save
+                SentBoxAttachment::create([
+                    'sent_mail_id' => $sentmail->id,
+                    'file_name'     => $originalName,
+                    'file_path'    => 'user-attachment/' . $fileName,
+                    'file_type'    => $mimeType,
+                    'file_size'    => $fileSize,
+                ]);
+
+                $saved[] ='user-attachment/' . $fileName;
+            }
+            $sentmail->increment('mail_size', $totalAttachmentSize);
+
+            // store data in DB
+            if (isset($result['status']) && $result['status'] === 'success') {
+                return response()->json(['message' => 'Email sent successfully!']);
+            }
+
+            return response()->json(['error' => 'Failed to send email'], 500);
+
+        }catch(QueryException $e){
+            return response()->json(['DB error' => $e->getMessage()], 500);
+        }catch(Exception $e){
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
 
     // Other methods...
     public function domainlist(Request $request): JsonResponse

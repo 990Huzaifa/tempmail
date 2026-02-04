@@ -161,4 +161,42 @@ class ModoboaService {
         return $response->successful();
     }
 
+
+    // ModoboaService.php
+
+    public function sendOutgoingEmail($masterUser, $fromEmail, $toEmails, $subject, $bodyHtml, $attachments = [])
+    {
+        // Agar $toEmails array hai, to usay comma-separated string banayein
+        $toRecipientString = implode(',', $toEmails);
+
+        $url = "http://72.60.114.133:8001/send-email";
+
+        $request = Http::withHeaders([
+            'x-api-key' => config('services.mail_hook.api_key'), // Aapki security key
+        ])->asMultipart();
+
+        // Basic Form Fields
+        $request->attach('master_user', $masterUser)
+                ->attach('from_email', $fromEmail)
+                ->attach('to_email', $toRecipientString)
+                ->attach('subject', $subject)
+                ->attach('body_html', $bodyHtml);
+
+        // Attachments Handling
+        if (!empty($attachments)) {
+            foreach ($attachments as $file) {
+                // $file should be an instance of UploadedFile
+                $request->attach(
+                    'attachments', 
+                    file_get_contents($file->getRealPath()), 
+                    $file->getClientOriginalName()
+                );
+            }
+        }
+
+        $response = $request->post($url);
+
+        return $response->json();
+    }
+
 }
