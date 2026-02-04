@@ -68,6 +68,7 @@ Route::get('domain-list',[TempMailController::class, 'domainlist']);
 Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::put('generate-mail',[TempMailController::class, 'generateMail']);
+    Route::post('setup-forwarding',[TempMailController::class, 'setupForwarding']);
     Route::get('mailbox',[TempMailController::class, 'mailBox']);
     Route::get('email-list',[TempMailController::class, 'emailList']);
     Route::get('activate-mailbox/{id}',[TempMailController::class, 'activateMailboxes']);
