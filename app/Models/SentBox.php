@@ -14,7 +14,7 @@ class SentBox extends Model
         'to_email',
         'subject',
         'body_html',
-        'alias_id',
+        'temp_alias_id',
         'mail_size',
     ];
 }

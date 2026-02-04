@@ -338,7 +338,7 @@ class TempMailController extends Controller
                 'to_email' => implode(',', $request->to),
                 'subject' => $request->subject,
                 'body_html' => $request->body,
-                'alias_id' => $alias->id,
+                'temp_alias_id' => $alias->id,
                 'mail_size' => $initialSize, // initial size without attachments
             ]);
 
