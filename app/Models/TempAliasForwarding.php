@@ -13,6 +13,7 @@ class TempAliasForwarding extends Model
     protected $fillable = [
         'temp_alias_id',
         'recipients',
-        'is_active'
+        'is_active',
+        'keep_local'
      ];
 }

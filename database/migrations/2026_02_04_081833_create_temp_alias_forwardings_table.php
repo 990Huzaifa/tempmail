@@ -17,6 +17,7 @@ return new class extends Migration
             $table->longText('recipients'); // User ki personal email
             $table->boolean('is_active')->default(true);
             $table->foreign('temp_alias_id')->references('id')->on('temp_aliases')->onDelete('cascade');
+            $table->boolean('keep_local')->default(false);
             $table->timestamps();
         });
     }

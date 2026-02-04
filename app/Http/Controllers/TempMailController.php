@@ -250,7 +250,8 @@ class TempMailController extends Controller
         // insert array of new emails in forwarding table
         TempAliasForwarding::create([
             'temp_alias_id' => $alias->id,
-            'recipients' => $allRecipients
+            'recipients' => $allRecipients,
+            'keep_local' => $request->keep_local
         ]);
 
                 
@@ -273,12 +274,13 @@ class TempMailController extends Controller
     {
         try{
             $user = Auth::user();
-
+            $page = $request->input('page', 1);
+            $perPage = $request->input('per_page', 10);
             $query = TempAliasForwarding::select('temp_alias_forwardings.*', 'temp_aliases.alias_email')
             ->join('temp_aliases', 'temp_aliases.id', '=', 'temp_alias_forwardings.temp_alias_id')
             ->where('temp_aliases.user_id', $user->id);
 
-            $data = $query->paginate(10);
+            $data = $query->paginate($perPage);
 
             return response()->json(['data' => $data]);
         }catch(Exception $e){
