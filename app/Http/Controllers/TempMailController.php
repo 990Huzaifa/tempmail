@@ -344,38 +344,40 @@ class TempMailController extends Controller
             ]);
 
             // add attachment
+            if($request->input('has_attachment') == true) {
+                $saved = [];
+                $totalAttachmentSize = 0;
+                foreach ($request->file('attachments') as $attachment) {
+                    if (!$attachment->isValid()) {
+                        continue;
+                    }
+                    
+                    $originalName = $attachment->getClientOriginalName();
+                    $mimeType     = $attachment->getClientMimeType();
+                    $fileSize     = $attachment->getSize(); // 👈 SAFE HERE
+                    $extension    = $attachment->getClientOriginalExtension();
 
-            $saved = [];
-            $totalAttachmentSize = 0;
-            foreach ($request->file('attachments') as $attachment) {
-                if (!$attachment->isValid()) {
-                    continue;
+                    $totalAttachmentSize += $fileSize;
+
+                    $fileName = uniqid('sent_att_') . '.' . $extension;
+
+                    // ✅ safe public path (or storage)
+                    $attachment->move(public_path('user-attachment'), $fileName);
+
+                    // (optional) DB me save
+                    SentBoxAttachment::create([
+                        'sent_mail_id' => $sentmail->id,
+                        'file_name'     => $originalName,
+                        'file_path'    => 'user-attachment/' . $fileName,
+                        'file_type'    => $mimeType,
+                        'file_size'    => $fileSize,
+                    ]);
+
+                    $saved[] ='user-attachment/' . $fileName;
                 }
-                
-                $originalName = $attachment->getClientOriginalName();
-                $mimeType     = $attachment->getClientMimeType();
-                $fileSize     = $attachment->getSize(); // 👈 SAFE HERE
-                $extension    = $attachment->getClientOriginalExtension();
+                $sentmail->increment('mail_size', $totalAttachmentSize);
 
-                $totalAttachmentSize += $fileSize;
-
-                $fileName = uniqid('sent_att_') . '.' . $extension;
-
-                // ✅ safe public path (or storage)
-                $attachment->move(public_path('user-attachment'), $fileName);
-
-                // (optional) DB me save
-                SentBoxAttachment::create([
-                    'sent_mail_id' => $sentmail->id,
-                    'file_name'     => $originalName,
-                    'file_path'    => 'user-attachment/' . $fileName,
-                    'file_type'    => $mimeType,
-                    'file_size'    => $fileSize,
-                ]);
-
-                $saved[] ='user-attachment/' . $fileName;
             }
-            $sentmail->increment('mail_size', $totalAttachmentSize);
             DB::commit();
             // store data in DB
             if (isset($result['status']) && $result['status'] === 'success') {
