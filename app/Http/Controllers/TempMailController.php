@@ -269,6 +269,23 @@ class TempMailController extends Controller
         return response()->json(['message' => 'Failed to sync with Modoboa server'], 500);
     }
 
+    public function forwardingList(Request $request): JsonResponse
+    {
+        try{
+            $user = Auth::user();
+
+            $query = TempAliasForwarding::select('temp_alias_forwardings.*', 'temp_aliases.alias_name')
+            ->join('temp_aliases', 'temp_aliases.id', '=', 'temp_alias_forwardings.temp_alias_id')
+            ->where('temp_aliases.user_id', $user->id);
+
+            $data = $query->paginate(10);
+
+            return response()->json(['data' => $data]);
+        }catch(Exception $e){
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     // Other methods...
     public function domainlist(Request $request): JsonResponse
     {
