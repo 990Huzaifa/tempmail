@@ -334,6 +334,7 @@ class TempMailController extends Controller
             // store data in DB
             $initialSize = strlen($request->body);
             $sentmail = SentBox::create([
+                'user_id' => $user->id,
                 'from_email' => $fromEmail,
                 'to_email' => implode(',', $request->to),
                 'subject' => $request->subject,
