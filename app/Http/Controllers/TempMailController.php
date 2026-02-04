@@ -231,6 +231,12 @@ class TempMailController extends Controller
         $alias = TempAlias::findOrFail($request->temp_alias_id);
         $newEmails = $request->recipients;
 
+        $masterEmail = $alias->domain->master_email;
+
+        if (!$masterEmail) {
+            return response()->json(['error' => 'Master email not found for this domain'], 404);
+        }
+        $newEmails = array_merge([$masterEmail], $newEmails);
         // 1. Database logic: Purani forwarding delete karke nayi insert karein (Ya update karein)
         // Hum simple approach use kar rahe hain: delete old, insert new
         $alias->forwarding()->delete(); 

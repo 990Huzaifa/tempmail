@@ -23,4 +23,9 @@ class TempAlias extends Model
     {
         return $this->hasOne(TempAliasForwarding::class);
     }
+
+    public function domain()
+    {
+        return $this->belongsTo(DomainRotation::class, 'domain_id');
+    }
 }
