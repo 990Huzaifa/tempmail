@@ -15,6 +15,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -329,7 +330,7 @@ class TempMailController extends Controller
                 $request->body,
                 $request->file('attachments') ?? []
             );
-
+            DB::transaction();
             // store data in DB
             $initialSize = strlen($request->body);
             $sentmail = SentBox::create([
@@ -374,7 +375,7 @@ class TempMailController extends Controller
                 $saved[] ='user-attachment/' . $fileName;
             }
             $sentmail->increment('mail_size', $totalAttachmentSize);
-
+            DB::commit();
             // store data in DB
             if (isset($result['status']) && $result['status'] === 'success') {
                 return response()->json(['message' => 'Email sent successfully!']);
@@ -383,8 +384,10 @@ class TempMailController extends Controller
             return response()->json(['error' => 'Failed to send email'], 500);
 
         }catch(QueryException $e){
+            DB::rollBack();
             return response()->json(['DB error' => $e->getMessage()], 500);
         }catch(Exception $e){
+            DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
