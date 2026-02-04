@@ -10,6 +10,7 @@ class SentBox extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'from_email',
         'to_email',
         'subject',
