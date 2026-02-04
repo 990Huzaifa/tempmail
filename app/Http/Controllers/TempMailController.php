@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class TempMailController extends Controller
@@ -210,7 +211,7 @@ class TempMailController extends Controller
 
     public function setupForwarding(Request $request): JsonResponse
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'temp_alias_id' => 'required|exists:temp_aliases,id',
             'recipients' => 'required|array|min:1', // Ab hum array le rahe hain
             'recipients.*' => 'email' // Array ka har item valid email hona chahiye
@@ -224,6 +225,9 @@ class TempMailController extends Controller
             'recipients.*.email' => 'Invalid email format'
         ]);
 
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
         $alias = TempAlias::findOrFail($request->temp_alias_id);
         $newEmails = $request->recipients;
 
