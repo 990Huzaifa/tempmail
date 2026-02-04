@@ -214,7 +214,8 @@ class TempMailController extends Controller
         $validator = Validator::make($request->all(), [
             'temp_alias_id' => 'required|exists:temp_aliases,id',
             'recipients' => 'required|array|min:1', // Ab hum array le rahe hain
-            'recipients.*' => 'email' // Array ka har item valid email hona chahiye
+            'recipients.*' => 'email', // Array ka har item valid email hona chahiye
+            'keep_local' => 'required|boolean'
         ],
         [
             'temp_alias_id.required' => 'Temp alias ID is required',
@@ -222,7 +223,9 @@ class TempMailController extends Controller
             'recipients.required' => 'Recipients are required',
             'recipients.array' => 'Recipients must be an array',
             'recipients.min' => 'At least one recipient is required',
-            'recipients.*.email' => 'Invalid email format'
+            'recipients.*.email' => 'Invalid email format',
+            'keep_local.required' => 'Keep local is required',
+            'keep_local.boolean' => 'Keep local must be a boolean'
         ]);
 
         if ($validator->fails()) {
@@ -231,11 +234,13 @@ class TempMailController extends Controller
         $alias = TempAlias::findOrFail($request->temp_alias_id);
         $newEmails = $request->recipients;
 
-        $masterEmail = $alias->domain->master_email;
-
-        if (!$masterEmail) {
-            return response()->json(['error' => 'Master email not found for this domain'], 404);
+        if($request->keep_local){
+            $masterEmail = $alias->domain->master_email;
+            if (!$masterEmail) {
+                return response()->json(['error' => 'Master email not found for this domain'], 404);
+            }            
         }
+
         $newEmails = array_merge([$masterEmail], $newEmails);
         // 1. Database logic: Purani forwarding delete karke nayi insert karein (Ya update karein)
         // Hum simple approach use kar rahe hain: delete old, insert new
