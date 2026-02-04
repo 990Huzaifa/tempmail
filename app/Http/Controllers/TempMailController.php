@@ -330,7 +330,7 @@ class TempMailController extends Controller
                 $request->body,
                 $request->file('attachments') ?? []
             );
-            DB::transaction();
+            DB::beginTransaction();
             // store data in DB
             $initialSize = strlen($request->body);
             $sentmail = SentBox::create([
