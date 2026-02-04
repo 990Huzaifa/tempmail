@@ -154,10 +154,10 @@ class ModoboaService {
         $response = Http::withHeaders([
                 'Authorization' => 'Token ' . $this->apiToken,
                 'Content-Type'  => 'application/json',
-            ])->patch("{$this->baseUrl}/api/v1/aliases/{$aliasId}/", [
+            ])->patch("{$this->baseUrl}aliases/{$aliasId}/", [
                 'recipients' => $recipients
             ]);
-            Log::info($response->body());
+            Log::info('service response'.$response->body());
         return $response->successful();
     }
 
