@@ -157,7 +157,7 @@ class ModoboaService {
             ])->patch("{$this->baseUrl}/api/v1/aliases/{$aliasId}/", [
                 'recipients' => $recipients
             ]);
-
+            Log::info($response->body());
         return $response->successful();
     }
 
