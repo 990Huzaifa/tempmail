@@ -274,7 +274,7 @@ class TempMailController extends Controller
         try{
             $user = Auth::user();
 
-            $query = TempAliasForwarding::select('temp_alias_forwardings.*', 'temp_aliases.alias_name')
+            $query = TempAliasForwarding::select('temp_alias_forwardings.*', 'temp_aliases.alias_email')
             ->join('temp_aliases', 'temp_aliases.id', '=', 'temp_alias_forwardings.temp_alias_id')
             ->where('temp_aliases.user_id', $user->id);
 
