@@ -17,4 +17,10 @@ class TempAlias extends Model
         'expires_at',
         'in_use'
     ];
+
+
+    public function forwarding()
+    {
+        return $this->hasOne(TempAliasForwarding::class);
+    }
 }

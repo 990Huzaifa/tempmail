@@ -148,4 +148,17 @@ class ModoboaService {
         return $response->json();
     }
 
+    public function updateAliasRecipients($aliasId, array $recipients)
+    {
+        // $recipients array looks like: ['master@domain.com', 'user@gmail.com']
+        $response = Http::withHeaders([
+                'Authorization' => 'Token ' . $this->apiToken,
+                'Content-Type'  => 'application/json',
+            ])->patch("{$this->baseUrl}/api/v1/aliases/{$aliasId}/", [
+                'recipients' => $recipients
+            ]);
+
+        return $response->successful();
+    }
+
 }

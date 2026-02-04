@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DomainRotation;
 use App\Models\EmailLog;
 use App\Models\TempAlias;
+use App\Models\TempAliasForwarding;
 use App\Services\ModoboaService;
 use Carbon\Carbon;
 use Exception;
@@ -204,6 +205,53 @@ class TempMailController extends Controller
         $mail->delete();
 
         return response()->json(['success' => 'Mail deleted']);
+    }
+
+
+    public function setupForwarding(Request $request): JsonResponse
+    {
+        $request->validate([
+            'temp_alias_id' => 'required|exists:temp_aliases,id',
+            'recipients' => 'required|array|min:1', // Ab hum array le rahe hain
+            'recipients.*' => 'email' // Array ka har item valid email hona chahiye
+        ],
+        [
+            'temp_alias_id.required' => 'Temp alias ID is required',
+            'temp_alias_id.exists' => 'Temp alias not found',
+            'recipients.required' => 'Recipients are required',
+            'recipients.array' => 'Recipients must be an array',
+            'recipients.min' => 'At least one recipient is required',
+            'recipients.*.email' => 'Invalid email format'
+        ]);
+
+        $alias = TempAlias::findOrFail($request->temp_alias_id);
+        $newEmails = $request->recipients;
+
+        // 1. Database logic: Purani forwarding delete karke nayi insert karein (Ya update karein)
+        // Hum simple approach use kar rahe hain: delete old, insert new
+        $alias->forwarding()->delete(); 
+        
+        $allRecipients = implode(',', $newEmails);
+        // insert array of new emails in forwarding table
+        TempAliasForwarding::create([
+            'temp_alias_id' => $alias->id,
+            'recipients' => $allRecipients
+        ]);
+
+                
+        // 2. Modoboa API call (PK use karte hue)
+        
+        // Modoboa API call (PK use karte hue)
+        $sync = $this->modoboa->updateAliasRecipients($alias->alias_modoboa_id, $newEmails);
+
+        if ($sync) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Forwarding updated for ' . count($newEmails) . ' recipients.'
+            ]);
+        }
+
+        return response()->json(['message' => 'Failed to sync with Modoboa server'], 500);
     }
 
     // Other methods...
