@@ -316,7 +316,7 @@ class TempMailController extends Controller
                 return response()->json(['error' => $validator->errors()], 422);
             }
 
-            $alias = TempAlias::with('domain')->findOrFail($request->temp_alias_id);
+            $alias = TempAlias::with('domain')->where('user_id', $user->id)->where('in_use', true)->firstOrFail();
     
             $masterUser = $alias->domain->master_email; // e.g. master@1ozzmail.store
             $fromEmail  = $alias->alias_email;         // Jo temp mail user use kar raha hai
