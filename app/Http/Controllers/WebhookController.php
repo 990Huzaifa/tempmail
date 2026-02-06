@@ -168,6 +168,7 @@ class WebhookController extends Controller
     {
 
         $data = $request->input('message.data');
+        Log::info('Google Notification Received: ' . json_encode($data));
         // here ye need to set a job for better and background processing
         ProcessGoogleNotification::dispatch($data)->onQueue('google-webhooks');
         // Must return a 200 status code to acknowledge receipt
