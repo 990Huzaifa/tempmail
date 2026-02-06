@@ -212,7 +212,7 @@ class ModoboaService {
         if (!empty($attachments)) {
             foreach ($attachments as $file) {
                 $pendingRequest->attach(
-                    'attachments[]', 
+                    'attachments', 
                     fopen($file->getRealPath(), 'r'), 
                     $file->getClientOriginalName()
                 );

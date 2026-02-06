@@ -336,6 +336,7 @@ class TempMailController extends Controller
         try{
             $user = Auth::user();
             $validator = Validator::make($request->all(), [
+                'from' => 'required|email|exists:temp_aliases,alias_email',
                 'to' => 'required|array|min:1', // Ab hum array le rahe hain
                 'to.*' => 'email', // Array ka har item valid email hona chahiye
                 'subject' => 'required|string',
@@ -354,8 +355,10 @@ class TempMailController extends Controller
                 return response()->json(['error' => $validator->errors()], 422);
             }
 
-            $alias = TempAlias::with('domain')->where('user_id', $user->id)->where('in_use', true)->firstOrFail();
-    
+            $alias = TempAlias::with('domain')->where('user_id', $user->id)->where('alias_email', $request->from)->firstOrFail();
+            if(!$alias){
+                return response()->json(['error' => 'Alias not found'], 404);
+            }
             $masterUser = $alias->domain->master_email; // e.g. master@1ozzmail.store
             $fromEmail  = $alias->alias_email;         // Jo temp mail user use kar raha hai
 
