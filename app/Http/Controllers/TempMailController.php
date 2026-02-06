@@ -137,6 +137,35 @@ class TempMailController extends Controller
         return response()->json(['mails' => $mails]);
     }
 
+    public function sentBox(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $tzcode = $request->header('Timezone', 'UTC');
+
+
+        $aliasQuery = TempAlias::where('user_id', $user->id)->orderBy('created_at', 'desc');
+
+        if($user->isPremium() == false){
+            $aliasQuery->where('in_use', true);
+        }
+
+        $aliasIds = $aliasQuery->pluck('id');
+
+        if ($aliasIds->isEmpty()) {
+            return response()->json([
+                'error' => 'No aliases found'
+            ], 404);
+        }
+
+        $mails = SentBox::whereIn('temp_alias_id', $aliasIds)
+        ->with('attachments')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+
+        return response()->json(['mails' => $mails]);
+    }
+
     public function readMail(Request $request, $mailId): JsonResponse
     {
         $mail = EmailLog::find($mailId);
