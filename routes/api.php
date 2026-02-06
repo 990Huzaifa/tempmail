@@ -5,6 +5,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TempMailController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -90,5 +91,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::post('feedback', [FeedbackController::class, 'store']);
+
+    Route::post('google/verify-payment', [PaymentController::class, 'verifyGoogle']);
+    Route::post('apple/verify-payment', [PaymentController::class, 'verifyApple']);
 
 });

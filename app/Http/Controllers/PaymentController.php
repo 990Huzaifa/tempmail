@@ -43,7 +43,7 @@ class PaymentController extends Controller
             $latestReceipt = $res;
             // check subscription here..
 
-            $checkSub = $user->subscriptions()->where('platform', 'apple')->orderBy('updated_at', 'desc')->first();
+            $checkSub = $user->subscription()->where('platform', 'apple')->orderBy('updated_at', 'desc')->first();
             $caseData = 'new';
             if ($checkSub) {
                 $caseData = 'upgrade';
@@ -54,10 +54,17 @@ class PaymentController extends Controller
             // 🎯 PLAN MAPPING
             // ============================
             $planConfig = [
-                'basic_cred_monthly'      => ['credits' => 10,  'type' => 'credits_monthly', 'duration' => 'monthly'],
-                'basic_cred_yearly'       => ['credits' => 10,  'type' => 'credits_annual',  'duration' => 'yearly'],
-                'unlimited_cred_monthly'  => ['credits' => 0,   'type' => 'unlimited',       'duration' => 'monthly'],
-                'unlimited_cred_yearly'   => ['credits' => 0,   'type' => 'unlimited',       'duration' => 'yearly'],
+                'basic_monthly'      => ['duration' => 'monthly'],
+                'basic_halfyearly'      => ['duration' => 'halfyearly'],
+                'basic_yearly'       => ['duration' => 'yearly'],
+
+                'Platinum_monthly'  => ['duration' => 'monthly'],
+                'Platinum_halfyearly'   => ['duration' => 'halfyearly'],
+                'Platinum_yearly'  => ['duration' => 'yearly'],
+
+                'premium_monthly'  => ['duration' => 'monthly'],
+                'premium_halfyearly'   => ['duration' => 'halfyearly'],
+                'premium_yearly'  => ['duration' => 'yearly'],                
             ];
 
             $productId = $latestReceipt['productId'];
@@ -70,124 +77,28 @@ class PaymentController extends Controller
             // transaction
             if($caseData == 'new'){
                 DB::transaction(function () use ($user, $plan, $productId, $expiresAt, $latestReceipt) {
-                    // 🔹 Get or Create Wallet
-                    $wallet = $user->wallet;
-
-                    // 🔹 Handle Credit-based Plans
-                    if (in_array($plan['type'], ['credits_monthly', 'credits_annual'])) {
-
-                        $wallet->unlimited_active = false;
-                        $wallet->paid_credits = $plan['credits']; // Add 10 now (monthly release)
-                        $wallet->save();
-
-                        CreditsTransaction::create([
-                            'user_id'  => $user->id,
-                            'type'     => 'plan_release',
-                            'credits'  => $plan['credits'],
-                            'source'   => 'subscription',
-                            'ref' => 'purchased successfully',
-                        ]);
-
-                        Subscription::Create([
-                                'user_id'           => $user->id,
-                                'plan'              => $productId,
-                                'credits_per_month' => $plan['credits'],
-                                'released_credits'  => ($plan['type'] === 'credits_annual' ? 10 : 0),
-                                'total_credits'     => ($plan['type'] === 'credits_annual' ? 120 : 0),
-                                'renewal_period'    => $plan['duration'],
-                                'transaction_id'    => $latestReceipt['transactionId'],
-                                'status'            => 'active',
-                                'expires_at'        => $expiresAt,
-                                'last_released_at'  => ($plan['type'] === 'credits_annual' ? Carbon::now() : null),
-                        ]);
-
-                    } 
-                    // 🔹 Handle Unlimited Plans
-                    else if ($plan['type'] === 'unlimited') {
-
-                        $wallet->unlimited_active = true;
-                        $wallet->save();
-
-                        Subscription::Create([
-                                'user_id'           => $user->id,
-                                'plan'              => $productId,
-                                'credits_per_month' => 0,
-                                'released_credits'  => 0,
-                                'total_credits'     => 0,
-                                'status'            => 'active',
-                                'expires_at'        => $expiresAt,
-                                'renewal_period'    => $plan['duration'],
-                                'transaction_id'    => $latestReceipt['transactionId'],
-                            ]);
-
-                        CreditsTransaction::create([
-                            'user_id'  => $user->id,
-                            'type'     => 'plan_release',
-                            'credits'  => 0,
-                            'source'   => 'subscription',
-                            'ref' => 'purchased successfully',
-                        ]);
-                    }
+                    
+                    Subscription::Create([
+                        'user_id'           => $user->id,
+                        'plan'              => $productId,
+                        'platform'          => 'apple',
+                        'status'            => 'active',
+                        'expires_at'        => $expiresAt,
+                        'renewal_period'    => $plan['duration'],
+                        'transaction_id'    => $latestReceipt['transactionId'],
+                    ]);
+                    
                 });
             }
             if($caseData == 'upgrade'){
                 DB::transaction(function () use ($user, $plan, $productId, $expiresAt, $latestReceipt) {
 
-                    // 🔹 Get or Create Wallet
-                    $wallet = $user->wallet;
-
-                    // 🔹 Handle Credit-based Plans
-                    if (in_array($plan['type'], ['credits_monthly', 'credits_annual'])) {
-
-                        $wallet->unlimited_active = false;
-                        $wallet->paid_credits = $plan['credits']; // Add 10 now (monthly release)
-                        $wallet->save();
-
-                        CreditsTransaction::create([
-                            'user_id'  => $user->id,
-                            'type'     => 'plan_release',
-                            'credits'  => $plan['credits'],
-                            'source'   => 'subscription',
-                            'ref' => 'upgraded successfully',
-                        ]);
-
-                        $user->subscriptions()->where('transaction_id', $latestReceipt['originalTransactionId'])->update([
-                                'plan'              => $productId,
-                                'credits_per_month' => $plan['credits'],
-                                'released_credits'  => ($plan['type'] === 'credits_annual' ? 10 : 0),
-                                'total_credits'     => ($plan['type'] === 'credits_annual' ? 120 : 0),
-                                'renewal_period'    => $plan['duration'],
-                                'status'            => 'active',
-                                'expires_at'        => $expiresAt,
-                                'last_released_at'  => ($plan['type'] === 'credits_annual' ? Carbon::now() : null),
-                        ]);
-
-                    } 
-                    // 🔹 Handle Unlimited Plans
-                    else if ($plan['type'] === 'unlimited') {
-
-                        $wallet->unlimited_active = true;
-                        $wallet->save();
-
-                        $user->subscriptions()->where('transaction_id', $latestReceipt['originalTransactionId'])->update([
-                                'plan'           => $productId,
-                                'credits_per_month' => 0,
-                                'released_credits' => 0,
-                                'total_credits' => 0,
-                                'status'         => 'active',
-                                'expires_at'     => $expiresAt,
-                                'renewal_period' => $plan['duration'],
-                            ]
-                        );
-
-                        CreditsTransaction::create([
-                            'user_id'  => $user->id,
-                            'type'     => 'plan_release',
-                            'credits'  => 0,
-                            'source'   => 'subscription',
-                            'ref' => 'upgraded successfully',
-                        ]);
-                    }
+                    $user->subscription()->where('transaction_id', $latestReceipt['originalTransactionId'])->update([
+                        'plan'              => $productId,
+                        'renewal_period'    => $plan['duration'],
+                        'status'            => 'active',
+                        'expires_at'        => $expiresAt,
+                    ]);
                 });
             }
 
@@ -310,7 +221,7 @@ class PaymentController extends Controller
         }
 
         // 2. Google Play Developer API ka Endpoint URL
-        $url = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications/{$packageName}/purchases/subscriptions/{$parent_id}/tokens/{$token}";
+        $url = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications/{$packageName}/purchases/subscription/{$parent_id}/tokens/{$token}";
 
         try {
             // 3. GET Request bhejhe Access Token header ke saath
@@ -482,7 +393,7 @@ class PaymentController extends Controller
             return null;
         }
 
-        $url = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications/{$packageName}/purchases/subscriptions/{$parent_id}/tokens/{$token}:cancel";
+        $url = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications/{$packageName}/purchases/subscription/{$parent_id}/tokens/{$token}:cancel";
         try{
             // 3. GET Request bhejhe Access Token header ke saath
             $response = Http::withHeaders([
