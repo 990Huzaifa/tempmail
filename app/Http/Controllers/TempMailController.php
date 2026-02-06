@@ -366,7 +366,7 @@ class TempMailController extends Controller
 
                     // (optional) DB me save
                     SentBoxAttachment::create([
-                        'sent_mail_id' => $sentmail->id,
+                        'sent_box_id' => $sentmail->id,
                         'file_name'     => $originalName,
                         'file_path'    => 'user-attachment/' . $fileName,
                         'file_type'    => $mimeType,
