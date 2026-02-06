@@ -16,7 +16,7 @@ class FirebaseService
     {
         // Initialize Firebase
         $userFactory = (new Factory)
-            ->withServiceAccount(storage_path('app/firebase/user-firebase-credentials.json'));
+            ->withServiceAccount(storage_path('app/public/firebase/user-firebase-credentials.json'));
         $this->userMessaging = $userFactory->createMessaging();
     }
 

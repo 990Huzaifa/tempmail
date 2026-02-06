@@ -11,7 +11,7 @@ class SentBoxAttachment extends Model
 
 
     protected $fillable = [
-        'sent_mail_id',
+        'sent_box_id',
         'file_name',
         'file_path',
         'file_type',
