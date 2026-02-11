@@ -44,6 +44,10 @@ return [
 
     'mail_hook' => [
         'api_key' => env('MAIL_HOOK_KEY')
+    ],
+
+    'google' => [
+        'android_package_name' => env('GOOGLE_ANDROID_PACKAGE_NAME')
     ]
 
 ];
