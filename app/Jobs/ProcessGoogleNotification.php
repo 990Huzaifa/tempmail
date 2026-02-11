@@ -105,20 +105,17 @@ class ProcessGoogleNotification implements ShouldQueue
         // ============================
         
         $planConfig = [
-            'premium-monthly'      => ['duration' => 'monthly', "is_premium" => true],
-            'premium-yearly'       => ['duration' => 'yearly', "is_premium" => true],
+            'basic-monthly'      => ['duration' => 'monthly'],
+            'basic-halfyearly'      => ['duration' => 'halfyearly'],
+            'basic-yearly'       => ['duration' => 'yearly'],
 
-            'basic-credt-monthly'      => ['credits' => 10,  'type' => 'credits_monthly', 'duration' => 'monthly',"is_premium" => false],
-            'basic-credt-yearly'       => ['credits' => 10,  'type' => 'credits_annual',  'duration' => 'yearly',"is_premium" => false],
-            'unlimited-credt-monthly'  => ['credits' => 0,   'type' => 'unlimited',       'duration' => 'monthly',"is_premium" => false],
-            'unlimited-credt-yearly'   => ['credits' => 0,   'type' => 'unlimited',       'duration' => 'yearly',"is_premium" => false],
-            
-            'basic-cred-monthly'      => ['credits' => 10,  'type' => 'credits_monthly', 'duration' => 'monthly',"is_premium" => false],
-            'basic-cred-yearly'       => ['credits' => 10,  'type' => 'credits_annual',  'duration' => 'yearly',"is_premium" => false],
-            'unlimited-cred-monthly'  => ['credits' => 0,   'type' => 'unlimited',       'duration' => 'monthly',"is_premium" => false],
-            'unlimited-cred-yearly'   => ['credits' => 0,   'type' => 'unlimited',       'duration' => 'yearly',"is_premium" => false],
+            'platinum-monthly'  => ['duration' => 'monthly'],
+            'platinum-halfyearly'   => ['duration' => 'halfyearly'],
+            'platinum-yearly'  => ['duration' => 'yearly'],
 
-
+            'premium-monthly'  => ['duration' => 'monthly'],
+            'premium-halfyearly'   => ['duration' => 'halfyearly'],
+            'premium-yearly'  => ['duration' => 'yearly'],                
         ];
 
         $plan = $planConfig[$productId] ?? null;

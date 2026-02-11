@@ -278,9 +278,9 @@ class PaymentController extends Controller
                 'basic-halfyearly'      => ['duration' => 'halfyearly'],
                 'basic-yearly'       => ['duration' => 'yearly'],
 
-                'Platinum-monthly'  => ['duration' => 'monthly'],
-                'Platinum-halfyearly'   => ['duration' => 'halfyearly'],
-                'Platinum-yearly'  => ['duration' => 'yearly'],
+                'platinum-monthly'  => ['duration' => 'monthly'],
+                'platinum-halfyearly'   => ['duration' => 'halfyearly'],
+                'platinum-yearly'  => ['duration' => 'yearly'],
 
                 'premium-monthly'  => ['duration' => 'monthly'],
                 'premium-halfyearly'   => ['duration' => 'halfyearly'],
