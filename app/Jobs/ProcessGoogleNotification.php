@@ -120,12 +120,7 @@ class ProcessGoogleNotification implements ShouldQueue
 
         $plan = $planConfig[$productId] ?? null;
         
-        if($plan['is_premium']){
-            $this->premium($type, $data, $productId, $plan);
-        }
-        else{
-            $this->subscription( $type, $data, $productId, $plan);
-        }
+        $this->subscription( $type, $data, $productId, $plan);
 
 
     }
