@@ -63,7 +63,8 @@ class TempMailController extends Controller
             }
 
             $response = $this->modoboa->createTempAlias($aliasEmail, $forwardEmail);
-            if($response['status'] == 'error') throw new Exception($response['data'], 500);
+            
+            if($response['status'] == 'error') throw new Exception("This mail already exists", 400);
 
             // delete old alias if exists for the user on free plan and create new one
             if($user->isPremium()  == false){
