@@ -124,7 +124,7 @@ class ModoboaService {
                     'data'    => $response->json()
                 ];
             }
-
+            Log::debug($response->body());    
             return [
                 'status'  => 'error',
                 'message' => $response->body()

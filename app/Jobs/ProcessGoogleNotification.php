@@ -288,7 +288,6 @@ class ProcessGoogleNotification implements ShouldQueue
             case 4: // SUBSCRIPTION_PURCHASED (New subscription) insert new subscription but first check if already exists
                 $existingSubscription = Subscription::where('user_id', $data['obfuscatedExternalAccountId'])
                     ->where('platform', 'google')
-                    ->where('plan', $productId)
                     ->first();
                 if(!$existingSubscription && $plan){
                     // Create new subscription
