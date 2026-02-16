@@ -177,7 +177,7 @@ class TempMailController extends Controller
 
         // Mark as read
         if (!$mail->is_read) {
-            $mail->update(['is_read' => now()->toISOString()]);
+            $mail->update(['is_read' => now('UTC')->toISOString()]);
         }
 
         return response()->json(['mail' => $mail, 'message' => 'Mail marked as read']);

@@ -7,7 +7,7 @@ use App\Http\Controllers\TempMailController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\WebhookController;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 use Illuminate\Support\Facades\Broadcast;
