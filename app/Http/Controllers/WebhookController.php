@@ -30,7 +30,7 @@ class WebhookController extends Controller
     public function webhook(Request $request): JsonResponse
     {
         // Handle incoming webhook data
-        Log::info('Webhook received:', $request->all());
+        // Log::info('Webhook received:', $request->all());
         $alias = TempAlias::where('alias_email', $request->input('to'))->first();
         if (!$alias) {
             Log::warning('Alias not found for email: ' . $request->input('to'));
@@ -59,21 +59,21 @@ class WebhookController extends Controller
             broadcast(new NewMailReceived($log));
 
             // send fcm notification
-            // $user = User::find($alias->user_id);
-            // if ($user && $user->fcm_token != null) {
-            //     $fcmService = new FirebaseService();
-            //     $fcmService->sendToDevice(
-            //         $user->fcm_token,
-            //         'New Email Received',
-            //         'You have received a new email from ' . $log->from_email,
-            //         [
-            //             'email_log_id' => $log->id,
-            //             'alias_id'     => $alias->id,
-            //             'sender'       => $log->from_email,
-            //             'subject'      => $log->subject,
-            //         ]
-            //     );
-            // }
+            $user = User::find($alias->user_id);
+            if ($user && $user->fcm_token != null) {
+                $fcmService = new FirebaseService();
+                $fcmService->sendToDevice(
+                    $user->fcm_token,
+                    'New Email Received',
+                    'You have received a new email from ' . $log->from_email,
+                    [
+                        'email_log_id' => $log->id,
+                        'alias_id'     => $alias->id,
+                        'sender'       => $log->from_email,
+                        'subject'      => $log->subject,
+                    ]
+                );
+            }
 
             // update mail size
         }
@@ -128,21 +128,21 @@ class WebhookController extends Controller
         broadcast(new NewMailReceived($log));
 
             // send fcm notification
-        // $user = User::find($log->user_id);
-        // if ($user && $user->fcm_token != null) {
-        //     $fcmService = new FirebaseService();
-        //     $fcmService->sendToDevice(
-        //         $user->fcm_token,
-        //         'New Email Received',
-        //         'You have received a new email from ' . $log->from_email,
-        //         [
-        //             'email_log_id' => $log->id,
-        //             'alias_id'     => $log->temp_alias_id,
-        //             'sender'       => $log->from_email,
-        //             'subject'      => $log->subject,
-        //         ]
-        //     );
-        // }
+        $user = User::find($log->user_id);
+        if ($user && $user->fcm_token != null) {
+            $fcmService = new FirebaseService();
+            $fcmService->sendToDevice(
+                $user->fcm_token,
+                'New Email Received',
+                'You have received a new email from ' . $log->from_email,
+                [
+                    'email_log_id' => $log->id,
+                    'alias_id'     => $log->temp_alias_id,
+                    'sender'       => $log->from_email,
+                    'subject'      => $log->subject,
+                ]
+            );
+        }
         // Log::info('Attachments saved for EmailLog ID: ' . $id . ', Files: ' . implode(', ', $saved));
 
         return response()->json(['status' => 'success']);
