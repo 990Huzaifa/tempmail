@@ -154,8 +154,8 @@ class TempMailController extends Controller
 
         if ($aliasIds->isEmpty()) {
             return response()->json([
-                'error' => 'No aliases found'
-            ], 404);
+                'message' => 'Sent box is empty. Generate a email to send mails.'
+            ], 200);
         }
 
         $mails = SentBox::whereIn('temp_alias_id', $aliasIds)
