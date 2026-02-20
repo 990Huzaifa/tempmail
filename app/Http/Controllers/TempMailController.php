@@ -125,8 +125,8 @@ class TempMailController extends Controller
 
         if ($aliasIds->isEmpty()) {
             return response()->json([
-                'error' => 'No aliases found'
-            ], 404);
+                'message' => 'Inbox is empty. Generate a email to receive mails.'
+            ], 200);
         }
 
         $mails = EmailLog::whereIn('temp_alias_id', $aliasIds)
