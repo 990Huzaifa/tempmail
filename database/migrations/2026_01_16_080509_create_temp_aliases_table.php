@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('alias_email')->unique();
             $table->unsignedBigInteger('domain_id');
             $table->timestamp('expires_at');
+            $table->boolean('in_use')->default(false);
+            $table->boolean('selected')->default(false);
             $table->timestamps();
         });
     }
