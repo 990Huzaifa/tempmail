@@ -6,6 +6,7 @@ use App\Models\CreditsTransaction;
 use App\Models\CreditsWallet;
 use App\Models\Premium;
 use App\Models\Subscription;
+use App\Models\TempAlias;
 use App\Models\User;
 use App\Services\GoogleAuthService;
 use Carbon\Carbon;
@@ -312,6 +313,7 @@ class ProcessGoogleNotification implements ShouldQueue
                         'canceled_at'      => null,
                     ]);
                 }
+                TempAlias::where('user_id', $data['obfuscatedExternalAccountId'])->update(['expires_at' => Carbon::now()->addMonth()]);
                 break;
             case 3: // SUBSCRIPTION_CANCELED
                 $subscription = Subscription::where('user_id', $data['obfuscatedExternalAccountId'])->where('platform', 'google')->first();
@@ -328,6 +330,8 @@ class ProcessGoogleNotification implements ShouldQueue
                         'status' => 'expired',
                     ]);
                 }
+                // add 3 days grace period to temp alias
+                TempAlias::where('user_id', $data['obfuscatedExternalAccountId'])->update(['expires_at' => Carbon::now()->addDays(3)]);
                 break;
             // ... include other types like RECOVERED, ON_HOLD, etc.
         }
