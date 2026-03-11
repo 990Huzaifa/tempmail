@@ -70,6 +70,11 @@ class TrackAndDeleteMail extends Command
                         return;
                     }
                 });
+
+                // update remaining one
+                TempAlias::where('id', $keepAlias->id)->update([
+                    'expires_at' => Carbon::now()->addMonth()
+                ]);
             });
 
         $this->info('Subscription tracking completed.');
