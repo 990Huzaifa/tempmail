@@ -87,6 +87,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/profile', 'updateProfile');
         Route::get('/check-plan', 'checkPlan');
 
+        Route::post('/change-password','changePassword');
         route::delete('/delete-account', 'deleteAccount');
     });
 

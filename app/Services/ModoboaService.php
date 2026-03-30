@@ -201,32 +201,61 @@ class ModoboaService {
 
     public function sendOutgoingEmail($masterUser, $fromEmail, $toEmails, $subject, $bodyHtml, $attachments = [])
     {
-        $toRecipientString = implode(',', $toEmails);
         $url = "http://72.60.114.133:8001/send-email";
 
-        $pendingRequest = Http::withHeaders([
-            'x-api-key' => config('services.mail_hook.api_key'),
-        ]);
+        // Multiple emails ko array hi bhejna better hai future ke liye
+        $toRecipientString = is_array($toEmails) ? implode(',', $toEmails) : $toEmails;
 
-        // Attachments ko loop mein add karein
+        $headers = [
+            'x-api-key' => config('services.mail_hook.api_key'),
+            'Accept' => 'application/json',
+        ];
+
+        $pendingRequest = Http::withHeaders($headers)->asMultipart();
+
+        // ✅ Required fields (Form data)
+        $multipartData = [
+            [
+                'name' => 'master_user',
+                'contents' => $masterUser,
+            ],
+            [
+                'name' => 'from_email',
+                'contents' => $fromEmail,
+            ],
+            [
+                'name' => 'to_email',
+                'contents' => $toRecipientString,
+            ],
+            [
+                'name' => 'subject',
+                'contents' => $subject,
+            ],
+            [
+                'name' => 'body_html',
+                'contents' => $bodyHtml,
+            ],
+        ];
+
+        // ✅ Attachments (optional)
         if (!empty($attachments)) {
             foreach ($attachments as $file) {
-                $pendingRequest->attach(
-                    'attachments', 
-                    fopen($file->getRealPath(), 'r'), 
-                    $file->getClientOriginalName()
-                );
+                $multipartData[] = [
+                    'name' => 'attachments',
+                    'contents' => fopen($file->getRealPath(), 'r'),
+                    'filename' => $file->getClientOriginalName(),
+                ];
             }
         }
 
-        // Baqi sara data POST body mein bhejein
-        $response = $pendingRequest->post($url, [
-            'master_user' => $masterUser,
-            'from_email'  => $fromEmail,
-            'to_email'    => $toRecipientString,
-            'subject'     => $subject,
-            'body_html'   => $bodyHtml,
+        // ✅ Send request
+        $response = $pendingRequest->send('POST', $url, [
+            'multipart' => $multipartData,
         ]);
+
+        // Debug logs
+        Log::info('Email API Status: ' . $response->status());
+        Log::info('Email API Response: ' . $response->body());
 
         return $response->json();
     }
