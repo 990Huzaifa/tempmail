@@ -458,4 +458,25 @@ class TempMailController extends Controller
         }
     }
 
+    public function deleteSentMail(Request $request, $mailId): JsonResponse
+    {
+        $user = Auth::user();
+        $mail = SentBox::find($mailId);
+
+        if (!$mail) {
+            return response()->json(['error' => 'Mail not found'], 404);
+        }
+
+        // Check if the mail belongs to the user's alias
+        $alias = TempAlias::where('user_id', $user->id)->where('id', $mail->temp_alias_id)->first();
+        if (!$alias) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Delete the mail
+        $mail->delete();
+
+        return response()->json(['success' => 'Mail deleted']);
+    }
+
 }

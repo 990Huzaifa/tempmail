@@ -81,6 +81,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('read-mail/{id}',[TempMailController::class, 'readMail']);
     Route::delete('delete-mailbox/{id}',[TempMailController::class, 'deleteMailbox']);
     Route::delete('delete-mail/{id}',[TempMailController::class, 'deleteMail']);
+    Route::delete('delete-sent-mail/{id}',[TempMailController::class, 'deleteSentMail']);
 
     Route::controller(ProfileController::class)->group(function () {
         Route::get('/profile', 'profile');
