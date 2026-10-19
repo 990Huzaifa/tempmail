@@ -201,7 +201,7 @@ class ModoboaService {
 
     public function sendOutgoingEmail($masterUser, $fromEmail, $toEmails, $subject, $bodyHtml, $attachments = [])
     {
-        $url = "http://72.60.114.133:8001/send-email";
+        $url = "http://mailingapi.techvince.com/send-email";
 
         // Multiple emails ko array hi bhejna better hai future ke liye
         $toRecipientString = is_array($toEmails) ? implode(',', $toEmails) : $toEmails;
